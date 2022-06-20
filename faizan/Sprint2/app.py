@@ -7,7 +7,7 @@ from sprint2.sprint2_stack import Sprint2Stack
 
 
 app = cdk.App()
-Sprint2Stack(app, "Sprint2Stack",
+Sprint2Stack(app, "FaizanSprint2Stack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
