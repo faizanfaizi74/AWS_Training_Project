@@ -8,8 +8,7 @@ def lambda_handler(event, context):
     # get latency and availability of the web resource
     availability = getAvailability()
     latency = getLatency()
-
-    return f"Availability: {availability} Latency: {latency}"
+    print(f"Availability: {availability} Latency: {latency}")
 
 
 # input parameters: None
