@@ -36,41 +36,45 @@ class Sprint2Stack(Stack):
             targets=[target]
         )
         
-        # creating Metric for Availability
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
-        dimensions = {"URL": constants.URL_TO_MONITOR}
 
-        availMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_AVAILABILITY,
-        namespace=constants.URL_MONITOR_NAMESPACE,
-        dimensions_map=dimensions,
-        label="Availability",
-        period=Duration.minutes(1),)
+        for url in constants.URL_TO_MONITOR:
+            # code for links here
 
-        # define threshold and create Alarms for Availability metric
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Alarm.html
-        availAlarm = cloudwatch_.Alarm(self, "AvailabilityAlarm",
-            comparison_operator=cloudwatch_.ComparisonOperator.LESS_THAN_THRESHOLD,
-            threshold=1,
-            evaluation_periods=1,
-            metric=availMetric
-        )
+            # creating Metric for Availability
+            # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
+            dimensions = {url+"_URL" : url}
 
-        # creating Metric for Latency
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
-        latenMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_LATENCY,
-        namespace=constants.URL_MONITOR_NAMESPACE,
-        dimensions_map=dimensions,
-        label="Latency",
-        period=Duration.minutes(1),)
+            availMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_AVAILABILITY,
+            namespace=constants.URL_MONITOR_NAMESPACE,
+            dimensions_map=dimensions,
+            label=constants.URL_MONITOR_NAME_AVAILABILITY,
+            period=Duration.minutes(1),)
 
-        # define threshold and create Alarms for Latency metric
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Alarm.html
-        latenAlarm = cloudwatch_.Alarm(self, "LatencyAlarm",
-            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold=0.2,
-            evaluation_periods=1,
-            metric=latenMetric
-        )
+            # define threshold and create Alarms for Availability metric
+            # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Alarm.html
+            availAlarm = cloudwatch_.Alarm(self, "AvailabilityAlarmfor_"+url,
+                comparison_operator=cloudwatch_.ComparisonOperator.LESS_THAN_THRESHOLD,
+                threshold=1,
+                evaluation_periods=1,
+                metric=availMetric
+            )
+
+            # creating Metric for Latency
+            # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
+            latenMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_LATENCY,
+            namespace=constants.URL_MONITOR_NAMESPACE,
+            dimensions_map=dimensions,
+            label=constants.URL_MONITOR_NAME_LATENCY,
+            period=Duration.minutes(1),)
+
+            # define threshold and create Alarms for Latency metric
+            # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Alarm.html
+            latenAlarm = cloudwatch_.Alarm(self, "LatencyAlarmfor_"+url,
+                comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+                threshold=0.2,
+                evaluation_periods=1,
+                metric=latenMetric
+            )
 
     def create_lambda(self, id_, handler, path, myRole):
         return lambda_.Function(self, id_,
@@ -78,6 +82,7 @@ class Sprint2Stack(Stack):
         handler=handler,
         code=lambda_.Code.from_asset(path),
         role=myRole,
+        timeout=Duration.seconds(25),
         )
 
     # creating role for policies
