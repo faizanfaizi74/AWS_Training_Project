@@ -7,7 +7,10 @@ from aws_cdk import (
     aws_events as events_,
     aws_events_targets as targets_,
     aws_cloudwatch as cloudwatch_,
-    aws_iam as iam_
+    aws_iam as iam_,
+    aws_sns as sns_,
+    aws_cloudwatch_actions as cw_actions_,
+    aws_sns_subscriptions as subscriptions_
 )
 from constructs import Construct
 from resources import constants as constants
@@ -36,19 +39,27 @@ class Sprint2Stack(Stack):
             targets=[target]
         )
         
+        # Creating an SNS Topic
+        # https://docs.aws.amazon.com/cdks/api/v1/python/aws_cdk.aws_sns/Topic.html
+        topic = sns_.Topic(self, "AlarmNotification")
+        #topic.apply_removal_policy(RemovalPolicy.DESTROY)
 
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_sns_subscriptions/EmailSubscription.html
+        email_address = "muhammadfaizan.ikram.skipq@gmail.com"
+        topic.add_subscription(subscriptions_.EmailSubscription(email_address))
+        
         for url in constants.URL_TO_MONITOR:
             # code for links here
 
             # creating Metric for Availability
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
-            dimensions = {url+"_URL" : url}
+            dimensions = {"URL" : url}
 
             availMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_AVAILABILITY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map=dimensions,
-            label=constants.URL_MONITOR_NAME_AVAILABILITY,
-            period=Duration.minutes(1),)
+            period=Duration.minutes(1)
+            )
 
             # define threshold and create Alarms for Availability metric
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Alarm.html
@@ -58,14 +69,16 @@ class Sprint2Stack(Stack):
                 evaluation_periods=1,
                 metric=availMetric
             )
+            # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch_actions/SnsAction.html
+            availAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
             # creating Metric for Latency
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
             latenMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_LATENCY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map=dimensions,
-            label=constants.URL_MONITOR_NAME_LATENCY,
-            period=Duration.minutes(1),)
+            period=Duration.minutes(1)
+            )
 
             # define threshold and create Alarms for Latency metric
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Alarm.html
@@ -75,6 +88,7 @@ class Sprint2Stack(Stack):
                 evaluation_periods=1,
                 metric=latenMetric
             )
+            latenAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
     def create_lambda(self, id_, handler, path, myRole):
         return lambda_.Function(self, id_,
@@ -97,5 +111,3 @@ class Sprint2Stack(Stack):
             ]
         )
         return lambda_role
-
-
