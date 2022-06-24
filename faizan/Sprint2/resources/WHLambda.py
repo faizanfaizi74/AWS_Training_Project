@@ -44,7 +44,7 @@ def getLatency(url):
     start = datetime.now()
     response = http.request("GET", url)
     end = datetime.now()
-    diff = end - start  # time difference
+    diff = end - start  #time difference
     latencySec = round(diff.microseconds * .000001, 6)
         
     return latencySec

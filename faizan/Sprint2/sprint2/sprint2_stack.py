@@ -10,7 +10,8 @@ from aws_cdk import (
     aws_iam as iam_,
     aws_sns as sns_,
     aws_cloudwatch_actions as cw_actions_,
-    aws_sns_subscriptions as subscriptions_
+    aws_sns_subscriptions as subscriptions_,
+    aws_dynamodb as dynamodb_,
 )
 from constructs import Construct
 from resources import constants as constants
@@ -20,14 +21,26 @@ class Sprint2Stack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # creating ,y lambda function for deploying WHLambda.py
+        # creating lambda function for deploying WHLambda.py
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html
         lambda_role = self.create_role()
         WHLambda = self.create_lambda("WH_Functions", "WHLambda.lambda_handler", "./resources", lambda_role)
 
+        # creating lambda function for deploying DBLambda.py
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_dynamodb/Table.html
+        DBLambda = self.create_lambda("DB_Functions", "DBLambda.lambda_handler", "./resources", lambda_role)
+
+        # Adding env variable
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
+        DBTable = self.create_table()
+        tname = DBTable.table_name
+        DBLambda.add_environment(key="Alarm_key", value=tname)
+
+        
         # policy for destroying resources
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.core/RemovalPolicy.html#aws_cdk.core.RemovalPolicy
         WHLambda.apply_removal_policy(RemovalPolicy.DESTROY)
+        DBLambda.apply_removal_policy(RemovalPolicy.DESTROY)
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
@@ -47,6 +60,9 @@ class Sprint2Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_sns_subscriptions/EmailSubscription.html
         email_address = "muhammadfaizan.ikram.skipq@gmail.com"
         topic.add_subscription(subscriptions_.EmailSubscription(email_address))
+
+        # Lambda Subscription
+        topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
         
         for url in constants.URL_TO_MONITOR:
             # code for links here
@@ -99,6 +115,14 @@ class Sprint2Stack(Stack):
         timeout=Duration.seconds(25),
         )
 
+    # input parameters: None
+    # return values: dynamo_db table
+    def create_table(self):
+        return dynamodb_.Table(self, "AlarmInfoTable",
+        partition_key=dynamodb_.Attribute(name="AlarmName", type=dynamodb_.AttributeType.STRING),
+        removal_policy=RemovalPolicy.DESTROY
+        )
+
     # creating role for policies
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_iam/ManagedPolicy.html
     # input parameters: None
@@ -107,7 +131,8 @@ class Sprint2Stack(Stack):
         lambda_role = iam_.Role(self, "Role",
         assumed_by=iam_.ServicePrincipal("lambda.amazonaws.com"),
         managed_policies=[
-            iam_.ManagedPolicy.from_aws_managed_policy_name("CloudWatchFullAccess")
+            iam_.ManagedPolicy.from_aws_managed_policy_name("CloudWatchFullAccess"),
+            iam_.ManagedPolicy.from_aws_managed_policy_name("AmazonDynamoDBFullAccess")
             ]
         )
         return lambda_role
