@@ -1,51 +1,43 @@
 
-# Welcome to your CDK Python project!
+# Welcome to my Sprint2 Project!
 
-This is a blank project for CDK development with Python.
+This is a Sprint2 project for Web Health Monitoring and DynamoDB Management.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## About Sprint2
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+In this Sprint2, We created Lambda functions for Web Health Monitoring and Database Management
 
-To manually create a virtualenv on MacOS and Linux:
+* We have created Lambda function to check the availability and latency of the website.
+* We scheduled the lambda function for every minute to automate the process.
+* The alarm notification for availability and latency was enabled by giving certain threshold and added subscription on email for each alarm.
+* The record was stored in DynamoDB database table for the alarm notification for future reference and record.
 
-```
-$ python3 -m venv .venv
-```
+* The full procedure to setup AWS and RUN the Sprint2 is given in next step.
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+## Environment Setup
 
-```
-$ source .venv/bin/activate
-```
+* First install Windows Subsystem for Linux (WSL). For  this, download WSL.exe file from Google. I faced error in installtion using `wsl --install` command so I used `wsl.exe --install -d Ubuntu-20.04` commad to install it correctly.
+* Dwnloaded VS Code and setup remote WSL from windows
+* Download python3
+* Donwload awscliv2.zip file from given path and install AWS. If you download it directly from google, there will be issue of path.
+* Download and install NVM and NPM
+* Check versions of all to be sure that softwares are installed corrrectly.
 
-If you are a Windows platform, you would activate the virtualenv like this:
+## How to Run
 
-```
-% .venv\Scripts\activate.bat
-```
+* Oopen the ubuntu terminal and clone the git repository using git clone 
+* Confirm that your working directory is Sprint2
+* Activate the virtual environment using command `source .venv/bin/activate`
+* Now pip run requirements.txt file to install all required packages
+* Configure the aws using `aws configure` and add your email and username to global configuration using command `git config --global user.email "your-email.gmail.com"` and `git config --global user.name "your-name"`.
+* Synth and Deploy the project on Consile using `cdk synth` and `cdk deploy`.
 
-Once the virtualenv is activated, you can install the required dependencies.
 
-```
-$ pip install -r requirements.txt
-```
+## AWS Console
 
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+* Go to AWS Console and monitore logs of WHLambda function for Availability and Latency.
+* Go to AWS Console and monitore logs of DBLambda function for records (if you print them).
+* Go to DynamoDB database and check the item tables for records.
 
 ## Useful commands
 
@@ -54,5 +46,7 @@ command.
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
+ * `source .venv/bin/activate`        activate virtual environment
+ * `pip install -r requirements.txt`  install requirements
 
 Enjoy!
