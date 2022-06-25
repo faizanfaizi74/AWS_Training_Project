@@ -13,11 +13,12 @@ def lambda_handler(event, context):
     for record in event['Records']:
 
         message = json.loads(record['Sns']['Message'])
+
         item = {
             "AlarmName": {'S': message["AlarmName"]},
-            "NewStateReason": {'S': message["NewStateReason"]},
+            "AlarmTime": {'S': message["AlarmConfigurationUpdatedTimestamp"]},
+            "Reason": {'S': message["NewStateReason"]},
             "Region": {'S': message["Region"]},
-            
         }
         response = dynamodb.put_item(
             TableName = tablename,

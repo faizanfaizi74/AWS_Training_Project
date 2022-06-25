@@ -41,7 +41,7 @@ class Sprint2Stack(Stack):
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
-        schedule = events_.Schedule.cron(minute="0/1")
+        schedule = events_.Schedule.cron()
         target = targets_.LambdaFunction(handler=WHLambda)
         
         rule = events_.Rule(self, "LambdaEventRule",
@@ -113,6 +113,7 @@ class Sprint2Stack(Stack):
     def create_table(self):
         return dynamodb_.Table(self, "AlarmInfoTable",
             partition_key=dynamodb_.Attribute(name="AlarmName", type=dynamodb_.AttributeType.STRING),
+            sort_key=dynamodb_.Attribute(name="AlarmTime", type=dynamodb_.AttributeType.STRING),
             removal_policy=RemovalPolicy.DESTROY
         )
 
