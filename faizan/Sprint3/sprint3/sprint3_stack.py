@@ -41,7 +41,7 @@ class Sprint3Stack(Stack):
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
-        schedule = events_.Schedule.cron() # for every minute
+        schedule = events_.Schedule.cron(hour='0', minute='60') # for every minute
         target = targets_.LambdaFunction(handler=WHLambda)
         
         rule = events_.Rule(self, "LambdaEventRule",
@@ -67,13 +67,13 @@ class Sprint3Stack(Stack):
             availMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_AVAILABILITY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map={"URL" : url},
-            period=Duration.minutes(1)
+            period=Duration.minutes(constants.URL_TIME_CONSTANT)
             )
 
             latenMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_LATENCY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map={"URL" : url},
-            period=Duration.minutes(1)
+            period=Duration.minutes(constants.URL_TIME_CONSTANT)
             )
 
             # define threshold and create Alarms for Availability and Latency metric
