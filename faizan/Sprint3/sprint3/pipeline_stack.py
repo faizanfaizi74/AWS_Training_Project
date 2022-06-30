@@ -25,8 +25,8 @@ class FaizanPipelineStack(Stack):
                 input=source,
                 commands=[
                     'cd faizan/Sprint3/',
-                    'npm install -g aws-cdk',
                     'pip install -r requirements.txt',
+                    'npm install -g aws-cdk',
                     'cdk synth'],
                 primary_output_directory = 'faizan/Sprint3/cdk.out',)
         )
