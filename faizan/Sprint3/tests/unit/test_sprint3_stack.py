@@ -11,8 +11,7 @@ from sprint3.sprint3_stack import Sprint3Stack
 #         self.stack = stack
 #         self.app = app
 
-# example tests. To run these tests, uncomment this file along with the example
-# resource in sprint3/sprint3_stack.py
+# Tests for Cloudformation Template
 
 def test_to_json():
     app = core.App()
@@ -24,7 +23,7 @@ def test_to_json():
     template.to_json()
 
 
-def test_resources_created():
+def test_lambda_created():
     app = core.App()
     stack = Sprint3Stack(app, "sprint3")
     template = assertions.Template.from_stack(stack)
@@ -32,14 +31,24 @@ def test_resources_created():
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     # Assert that we have created 2 Lambda
     template.resource_count_is("AWS::Lambda::Function", 2)
-    # Assert that we have created any S3 bucket
-    template.resource_count_is("AWS::S3::Bucket", 0)
+
+def test_subscription_created():
+    app = core.App()
+    stack = Sprint3Stack(app, "sprint3")
+    template = assertions.Template.from_stack(stack)
+
+    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     # Assert that we have created 2 subscriptions
     template.resource_count_is("AWS::SNS::Subscription", 2)
+
+def test_table_created():
+    app = core.App()
+    stack = Sprint3Stack(app, "sprint3")
+    template = assertions.Template.from_stack(stack)
+
+    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     # Assert that we have created a table
     template.resource_count_is("AWS::DynamoDB::Table", 1)
-    # Assert that we have created 8 alarms
-    template.resource_count_is("AWS::CloudWatch::Alarm", 9)
 
 def test_role_created():
     app = core.App()
@@ -100,7 +109,7 @@ def test_alarm_created():
     )
 
 
-def test_table_created():
+def test_composite_created():
     app = core.App()
     stack = Sprint3Stack(app, "sprint3")
     template = assertions.Template.from_stack(stack)
@@ -123,16 +132,22 @@ def test_table_created():
     )
 
 
-def test_subscription_created():
+def test_lambda_subscription_created():
     app = core.App()
     stack = Sprint3Stack(app, "sprint3")
     template = assertions.Template.from_stack(stack)
 
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
-    template.has_resource_properties(
-        "AWS::SNS::Subscription", {"Protocol": "lambda"})
-    template.has_resource_properties(
-        "AWS::SNS::Subscription", {"Protocol": "email"})
+    template.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "lambda"})
+
+
+def test_email_subscription_created():
+    app = core.App()
+    stack = Sprint3Stack(app, "sprint3")
+    template = assertions.Template.from_stack(stack)
+
+    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
+    template.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "email"})
     
 
 def test_rule_created():
