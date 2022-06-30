@@ -39,7 +39,7 @@ def test_resources_created():
     # Assert that we have created a table
     template.resource_count_is("AWS::DynamoDB::Table", 1)
     # Assert that we have created 8 alarms
-    template.resource_count_is("AWS::CloudWatch::Alarm", 8)
+    template.resource_count_is("AWS::CloudWatch::Alarm", 9)
 
 def test_role_created():
     app = core.App()
