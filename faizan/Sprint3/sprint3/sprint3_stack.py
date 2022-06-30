@@ -42,7 +42,7 @@ class Sprint3Stack(Stack):
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
-        schedule = events_.Schedule.cron(hour='0', minute='60') # for every minute
+        schedule = events_.Schedule.rate(Duration.minutes(60)) # for every minute
         target = targets_.LambdaFunction(handler=WHLambda)
         
         rule = events_.Rule(self, "LambdaEventRule",
@@ -57,57 +57,48 @@ class Sprint3Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_sns_subscriptions/EmailSubscription.html
         email_address = "muhammadfaizan.ikram.skipq@gmail.com"
         topic.add_subscription(subscriptions_.EmailSubscription(email_address))
-
         # Lambda Subscription
         topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
         #Step:01 Get the metric
-        WHLambdaMetric = cloudwatch_.Metric(metric_name="Duration",
-            namespace='AWS/Lambda',
-            dimensions_map={"FunctionName" : WHLambda.function_name},
-            )
+        WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(60))
+        WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(60))
 
-        #Step:02 Create Alarms for WHLambdaMetrci
-        durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmforDuration",
+        #Step:02 Create Alarms for metrci
+        durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
             comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold=0.2,
+            threshold=1,
             evaluation_periods=1,
-            metric=WHLambdaMetric
+            metric=WHLambdaDurationMetric,
+            datapoints_to_alarm = 1,
+            treat_missing_data = cloudwatch_.TreatMissingData.BREACHING
             )
 
-        # invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmforInvocation",
-        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        #     threshold=2,
-        #     evaluation_periods=1,
-        #     metric=WHLambdaMetric
-        #     )
-
-        # memoryAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmforMemory",
-        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        #     threshold=0.2,
-        #     evaluation_periods=1,
-        #     metric=WHLambdaMetric.
-        #     removal_policy=RemovalPolicy.DESTROY
-        #     )
+        invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Invocation",
+            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold=1,
+            evaluation_periods=1,
+            metric=WHLambdaInvocationMetric,
+            datapoints_to_alarm = 1,
+            treat_missing_data = cloudwatch_.TreatMissingData.BREACHING
+            )
 
         durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
-        # invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
-        # memoryAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
         # Lambda deployment configuration and rollback
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
-        # used to make sure each CDK synthesis produces a different Version
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "FaizanLambdaAlias",
-            alias_name="Prod",
+        alias = lambda_.Alias(self, "FaizanLambda_Alias",
+            alias_name="Prod_Alias",
             version=version
         )
 
-        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanBlueGreenDeployment",
-            alias=alias,
-            alarms= [durationAlarm],    # Add alarms in list
-            deployment_config=codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
+        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambdaDeployment",
+            alias = alias,
+            alarms = [durationAlarm, invocationAlarm],   
+            deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
         )
                 
         for url in constants.URL_TO_MONITOR:
@@ -155,7 +146,7 @@ class Sprint3Stack(Stack):
         handler=handler,
         code=lambda_.Code.from_asset(path),
         role=myRole,
-        timeout=Duration.seconds(100),
+        timeout=Duration.seconds(300),
         )
 
     # input parameters: None

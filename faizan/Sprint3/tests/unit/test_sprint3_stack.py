@@ -88,27 +88,6 @@ def test_role_created():
         }
     )
 
-
-def test_alarm_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    template.has_resource_properties(
-        "AWS::CloudWatch::Alarm",
-        {
-            "Namespace": "FaizanAWS",
-            "MetricName": Match.any_value(),
-            "Dimensions": [
-                {
-                    "Name": "URL",
-                    "Value": Match.any_value(),
-                },
-            ],
-        },
-    )
-
-
 def test_composite_created():
     app = core.App()
     stack = Sprint3Stack(app, "sprint3")
