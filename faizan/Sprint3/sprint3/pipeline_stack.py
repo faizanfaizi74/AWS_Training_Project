@@ -19,18 +19,26 @@ class FaizanPipelineStack(Stack):
             authentication = cdk.SecretValue.secrets_manager("mytokenNew"),
             trigger = actions_.GitHubTrigger('POLL'))
 
-        unit_test = pipeline_.ShellStep("Unit",
-            commands=['cd faizan/Sprint3', 'sudo apt install python-pytest'],
-            primary_output_directory = 'faizan/Sprint3/cdk.out',)
-
         # Output build Artifact
         mypipeline = pipeline_.CodePipeline(self, "FaizanPipeline",
             synth=pipeline_.ShellStep("Synth",
                 input=source,
-                commands=['cd faizan/Sprint3', 'pip install -r requirements.txt', 'cdk synth'],
-                primary_output_directory = 'faizan/Sprint3/cdk.out',
-            )
+                commands=[
+                    'cd faizan/Sprint3/',
+                    'npm install -g aws-cdk',
+                    'pip install -r requirements.txt',
+                    'cdk synth'],
+                primary_output_directory = 'faizan/Sprint3/cdk.out',)
         )
+
+        unit_test = pipeline_.ShellStep("Unit Testing",
+            commands=[
+                'cd faizan/Sprint3/',
+                'pip install -r requirements.txt',
+                'pip install -r requirements-dev.txt',
+                'pytest'],
+        )
+
 
         # 'MyApplication' is defined below. Call `addStage` as many times as
         # necessary with any account and region (may be different from the

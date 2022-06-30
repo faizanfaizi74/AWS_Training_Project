@@ -12,6 +12,7 @@ from aws_cdk import (
     aws_cloudwatch_actions as cw_actions_,
     aws_sns_subscriptions as subscriptions_,
     aws_dynamodb as dynamodb_,
+    aws_codedeploy as codedeploy_,
 )
 from constructs import Construct
 from resources import constants as constants
@@ -60,6 +61,55 @@ class Sprint3Stack(Stack):
         # Lambda Subscription
         topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
+        #Step:01 Get the metric
+        WHLambdaMetric = cloudwatch_.Metric(metric_name="Duration",
+            namespace='AWS/Lambda',
+            dimensions_map={"FunctionName" : WHLambda.function_name},
+            )
+
+        #Step:02 Create Alarms for WHLambdaMetrci
+        durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmforDuration",
+            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold=0.2,
+            evaluation_periods=1,
+            metric=WHLambdaMetric
+            )
+
+        # invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmforInvocation",
+        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+        #     threshold=2,
+        #     evaluation_periods=1,
+        #     metric=WHLambdaMetric
+        #     )
+
+        # memoryAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmforMemory",
+        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+        #     threshold=0.2,
+        #     evaluation_periods=1,
+        #     metric=WHLambdaMetric.
+        #     removal_policy=RemovalPolicy.DESTROY
+        #     )
+
+        durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        # invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        # memoryAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+
+        # Lambda deployment configuration and rollback
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
+        # used to make sure each CDK synthesis produces a different Version
+        version = WHLambda.current_version
+        alias = lambda_.Alias(self, "FaizanLambdaAlias",
+            alias_name="Prod",
+            version=version
+        )
+
+        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanBlueGreenDeployment",
+            alias=alias,
+            alarms= [durationAlarm],    # Add alarms in list
+            deployment_config=codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
+        )
+                
         for url in constants.URL_TO_MONITOR:
             # creating Metric for Availability and Latency
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html

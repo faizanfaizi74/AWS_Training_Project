@@ -49,20 +49,7 @@ def test_role_created():
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     template.has_resource_properties(
         "AWS::IAM::Role",
-        Match.object_equals(
             {
-                "AssumeRolePolicyDocument": {
-                    "Statement": [
-                        {
-                            "Action": "sts:AssumeRole",
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": "lambda.amazonaws.com"
-                            }
-                        }
-                    ],
-                "Version": "2012-10-17"
-                },
                 "ManagedPolicyArns": [
                     {
                         "Fn::Join": [
@@ -89,8 +76,7 @@ def test_role_created():
                     ]
                 }
             ]
-            }
-        ),
+        }
     )
 
 
@@ -122,7 +108,6 @@ def test_table_created():
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     template.has_resource_properties(
         "AWS::DynamoDB::Table",
-        Match.object_equals(
             {
                 "KeySchema": [
                 {
@@ -134,22 +119,7 @@ def test_table_created():
                 "KeyType": "RANGE"
                 }
                 ],
-                "AttributeDefinitions": [
-                {
-                "AttributeName": "AlarmName",
-                "AttributeType": "S"
-                },
-                {
-                "AttributeName": "AlarmTime",
-                "AttributeType": "S"
-                }
-                ],
-                "ProvisionedThroughput": {
-                "ReadCapacityUnits": 5,
-                "WriteCapacityUnits": 5
-                }
             }
-        ),
     )
 
 
@@ -160,23 +130,10 @@ def test_subscription_created():
 
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     template.has_resource_properties(
-        "AWS::SNS::Subscription",
-        Match.object_equals(
-            {
-                "Protocol": "lambda",
-                "TopicArn": {
-                    "Ref": "AlarmNotificationB0D2F5CA"
-                    },
-                "Endpoint": {
-                    "Fn::GetAtt": [
-                        "DBFunctions42E69620",
-                        "Arn"
-                    ]
-                }
-            }
-        ),
-    )
-
+        "AWS::SNS::Subscription", {"Protocol": "lambda"})
+    template.has_resource_properties(
+        "AWS::SNS::Subscription", {"Protocol": "email"})
+    
 
 def test_rule_created():
     app = core.App()
@@ -186,9 +143,7 @@ def test_rule_created():
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
     template.has_resource_properties(
         "AWS::Events::Rule",
-        Match.object_equals(
             {
-                "ScheduleExpression": "cron(60 0 * * ? *)",
                 "State": "ENABLED",
                 "Targets": [
                     {
@@ -202,5 +157,4 @@ def test_rule_created():
                     }
                 ]
             }
-        ),
-    )
+        )
