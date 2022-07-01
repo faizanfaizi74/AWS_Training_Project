@@ -27,7 +27,11 @@ The end goal of this sprint was to automate the build and deploy process of th W
 * AWS CloudWatch
 * Github
 
-* The full procedure to setup AWS and RUN the Sprint3 is given in next step.
+## Documentation
+
+The documentation is available on [GitHub](https://github.com/muhammadfaizan2022skipq/SkipQ-Documentation/blob/main/Faizan_Sprint3_Documentation.pdf).
+
+> The full procedure to setup AWS and RUN the Sprint3 is given in next step.
 
 ## Environment Setup
 
@@ -65,4 +69,4 @@ The end goal of this sprint was to automate the build and deploy process of th W
  * `source .venv/bin/activate`        activate virtual environment
  * `pip install -r requirements.txt`  install requirements
 
-Enjoy!
+> For a more in-depth getting started guide, visit the [Getting Started](https://docs.aws.amazon.com/codepipeline/latest/userguide/getting-started-codepipeline.html) page in the AWS docs.

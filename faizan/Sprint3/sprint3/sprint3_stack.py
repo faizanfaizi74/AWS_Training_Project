@@ -73,8 +73,6 @@ class Sprint3Stack(Stack):
             threshold=1,
             evaluation_periods=1,
             metric=WHLambdaDurationMetric,
-            datapoints_to_alarm = 1,
-            treat_missing_data = cloudwatch_.TreatMissingData.BREACHING
             )
 
         invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Invocation",
@@ -82,8 +80,6 @@ class Sprint3Stack(Stack):
             threshold=1,
             evaluation_periods=1,
             metric=WHLambdaInvocationMetric,
-            datapoints_to_alarm = 1,
-            treat_missing_data = cloudwatch_.TreatMissingData.BREACHING
             )
 
         durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
