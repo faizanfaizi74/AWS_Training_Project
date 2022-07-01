@@ -1,51 +1,59 @@
 
-# Welcome to your CDK Python project!
+# Welcome to my Sprint3 Project!
 
-This is a blank project for CDK development with Python.
+This is a Sprint3 project for a multi-satge pipeline deployment and configuration with atutomatic rollback for my Web Health Monitoring Application.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## About Sprint2
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+### Objective
 
-To manually create a virtualenv on MacOS and Linux:
+The objective of this Sprint3 is to build up on Sprint2 and create a multi-stage pipeline having Beta/Gamma and Prod stage using CDK and also deploy the project code in one or multiple regions. The core objectives are listed as follows:
 
-```
-$ python3 -m venv .venv
-```
+* The Each stage must have bake Times, code-review, and test blockers.
+* Write unit/integration tests for the web crawler.
+* Emit CloudWatch metrics and alarms for the operational health of the web crawler, including memory and time-to-process each crawler run.
+* Automate rollback to the last build if metrics are in alarm. Manage README files and run-books in markdown on GitHub.
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+### End Goal
 
-```
-$ source .venv/bin/activate
-```
+The end goal of this sprint was to automate the build and deploy process of th Web Health Monitoring application using a multi-stage pipeline. For this purpose, I created a multi-stage pipeline architecture and added source and build artifact. I created alpha stage for unit testing and prod stage for manual approval and added them to the pipeline. The unit tests were created for alpha stage to check each unit of the application before deployment. At the end, I created metric and alarm at deployment satge and configured the Lambda deployment and rollback using deployment groups.
 
-If you are a Windows platform, you would activate the virtualenv like this:
+### TECHNOLOGIES USED
 
-```
-% .venv\Scripts\activate.bat
-```
+* AWS CI/CD Pipeline
+* AWS CloudWatch
+* AWS CodeBuild
+* AWS CodePipeline
+* AWS CloudWatch
+* Github
 
-Once the virtualenv is activated, you can install the required dependencies.
+* The full procedure to setup AWS and RUN the Sprint3 is given in next step.
 
-```
-$ pip install -r requirements.txt
-```
+## Environment Setup
 
-At this point you can now synthesize the CloudFormation template for this code.
+* First install Windows Subsystem for Linux (WSL). For  this, download WSL.exe file from Google. I faced error in installtion using `wsl --install` command so I used `wsl.exe --install -d Ubuntu-20.04` commad to install it correctly.
+* Dwnloaded VS Code and setup remote WSL from windows
+* Download python3
+* Donwload awscliv2.zip file from given path and install AWS. If you download it directly from google, there will be issue of path.
+* Download and install NVM and NPM
+* Check versions of all to be sure that softwares are installed corrrectly.
 
-```
-$ cdk synth
-```
+## How to Run
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+* Oopen the ubuntu terminal and clone the git repository using git clone 
+* Confirm that your working directory is Sprint3
+* Activate the virtual environment using command `source .venv/bin/activate`
+* Now pip run requirements.txt file to install all required packages
+* Configure the aws using `aws configure` and add your email and username to global configuration using command `git config --global user.email "your-email.gmail.com"` and `git config --global user.name "your-name"`.
+* Synth and Deploy the project on Consile using `cdk synth` and `cdk deploy`.
+
+
+## AWS Console
+
+* Go to the AWS Console and monitore logs of WHLambda function for Availability and Latency.
+* Go to the AWS Console and monitore logs of DBLambda function for records (if you print them).
+* Go to the AWS DynamoDB database and check the item tables for records.
+* Go to the AWS CodePipeline and check the deployment of all stages.
 
 ## Useful commands
 
@@ -54,5 +62,7 @@ command.
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
+ * `source .venv/bin/activate`        activate virtual environment
+ * `pip install -r requirements.txt`  install requirements
 
 Enjoy!

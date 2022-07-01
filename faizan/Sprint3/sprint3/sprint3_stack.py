@@ -27,13 +27,15 @@ class Sprint3Stack(Stack):
         lambda_role = self.create_role()
         WHLambda = self.create_lambda("WH_Functions", "WHLambda.lambda_handler", "./resources", lambda_role)
         DBLambda = self.create_lambda("DB_Functions", "DBLambda.lambda_handler", "./resources", lambda_role)
-        
+  
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_dynamodb/Table.html
+
         DBTable = self.create_table()
-        # Adding env variable
+        DBTable.grant_read_write_data(DBLambda)     # permission to lambda function to read and write in table
+        
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         tname = DBTable.table_name
-        DBLambda.add_environment(key="Alarm_key", value=tname)
+        DBLambda.add_environment(key="Alarm_key", value=tname)  # Adding env variable
 
         # policy for destroying resources
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.core/RemovalPolicy.html#aws_cdk.core.RemovalPolicy
@@ -60,11 +62,13 @@ class Sprint3Stack(Stack):
         # Lambda Subscription
         topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
+        #-------------------------------------------------------------Sprint #03 Stack Start---------------------------------------------------#
+
         #Step:01 Get the metric
         WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(60))
         WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(60))
 
-        #Step:02 Create Alarms for metrci
+        #Step:02 Create Alarms for metric
         durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
             comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
             threshold=1,
@@ -100,6 +104,8 @@ class Sprint3Stack(Stack):
             alarms = [durationAlarm, invocationAlarm],   
             deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
         )
+
+        #-------------------------------------------------------------Sprint #03 Stack End---------------------------------------------------#
                 
         for url in constants.URL_TO_MONITOR:
             # creating Metric for Availability and Latency
@@ -153,7 +159,7 @@ class Sprint3Stack(Stack):
     # return values: dynamo_db table
     def create_table(self):
         return dynamodb_.Table(self, "AlarmInfoTable",
-            partition_key=dynamodb_.Attribute(name="AlarmName", type=dynamodb_.AttributeType.STRING),
+            partition_key=dynamodb_.Attribute(name="AlarmID", type=dynamodb_.AttributeType.STRING),
             sort_key=dynamodb_.Attribute(name="AlarmTime", type=dynamodb_.AttributeType.STRING),
             removal_policy=RemovalPolicy.DESTROY
         )

@@ -39,13 +39,11 @@ class FaizanPipelineStack(Stack):
                 'pytest'],
         )
 
-
         # 'MyApplication' is defined below. Call `addStage` as many times as
         # necessary with any account and region (may be different from the
         # pipeline's).
 
         alpha = FaizanOutputStage(self, "FaizanUnitStage")
-                
         prod = FaizanOutputStage(self, "FaizanProdStage")
 
         mypipeline.add_stage(stage=alpha, pre=[unit_test])
