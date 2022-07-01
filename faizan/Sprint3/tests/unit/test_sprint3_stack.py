@@ -99,13 +99,9 @@ def test_composite_created():
             {
                 "KeySchema": [
                 {
-                "AttributeName": "AlarmID",
+                "AttributeName": "AlarmTime",
                 "KeyType": "HASH"
                 },
-                {
-                "AttributeName": "AlarmTime",
-                "KeyType": "RANGE"
-                }
                 ],
             }
     )

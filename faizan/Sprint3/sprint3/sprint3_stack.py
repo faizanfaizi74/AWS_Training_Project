@@ -88,8 +88,8 @@ class Sprint3Stack(Stack):
         # Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "Lambda_Faizan_Alias",
-            alias_name="Prod_Faizan_Alias",
+        alias = lambda_.Alias(self, "Lambda_Alias_Faizan",
+            alias_name="Prod_Alias_Faizan",
             version=version
         )
 
