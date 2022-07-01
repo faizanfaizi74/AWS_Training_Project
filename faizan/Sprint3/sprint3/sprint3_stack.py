@@ -31,8 +31,7 @@ class Sprint3Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_dynamodb/Table.html
 
         DBTable = self.create_table()
-        DBTable.grant_read_write_data(DBLambda)     # permission to lambda function to read and write in table
-        
+
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         tname = DBTable.table_name
         DBLambda.add_environment(key="Alarm_key", value=tname)  # Adding env variable
@@ -93,8 +92,8 @@ class Sprint3Stack(Stack):
         # Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "FaizanLambda_Alias",
-            alias_name="Prod_Alias",
+        alias = lambda_.Alias(self, "Faizan_Lambda_Alias",
+            alias_name="Faizan_Prod_Alias",
             version=version
         )
 

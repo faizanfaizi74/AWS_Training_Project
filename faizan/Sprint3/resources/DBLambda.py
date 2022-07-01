@@ -12,7 +12,6 @@ def lambda_handler(event, context):
     tablename = os.genenv("Alarm_key")
     table=dynamodb.Table(tablename)
 
-
     Message_ID = event['Records'][0]['Sns']['MessageId']
     timestamp = event['Records'][0]['Sns']['Timestamp']
     message  = event['Records'][0]['Sns']['Message']
