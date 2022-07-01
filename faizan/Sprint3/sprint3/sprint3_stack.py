@@ -154,8 +154,7 @@ class Sprint3Stack(Stack):
     # return values: dynamo_db table
     def create_table(self):
         return dynamodb_.Table(self, "AlarmInfoTable",
-            partition_key=dynamodb_.Attribute(name="AlarmID", type=dynamodb_.AttributeType.STRING),
-            sort_key=dynamodb_.Attribute(name="AlarmTime", type=dynamodb_.AttributeType.STRING),
+            partition_key=dynamodb_.Attribute(name="AlarmTime", type=dynamodb_.AttributeType.STRING),
             removal_policy=RemovalPolicy.DESTROY
         )
 
