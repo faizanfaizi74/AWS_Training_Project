@@ -96,7 +96,7 @@ class Sprint3Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
         deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambdaDeployment",
             alias = alias,
-            alarms = [durationAlarm, invocationAlarm],   
+            alarms = [durationAlarm, invocationAlarm],
             deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
         )
 

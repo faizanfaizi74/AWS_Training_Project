@@ -3,7 +3,7 @@
 
 This is a Sprint3 project for a multi-satge pipeline deployment and configuration with atutomatic rollback for my Web Health Monitoring Application.
 
-## About Sprint2
+## About Sprint3
 
 ### Objective
 
