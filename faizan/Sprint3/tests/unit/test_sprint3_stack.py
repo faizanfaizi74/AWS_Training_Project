@@ -98,10 +98,14 @@ def test_composite_created():
         "AWS::DynamoDB::Table",
             {
                 "KeySchema": [
-                {
-                "AttributeName": "AlarmTime",
-                "KeyType": "HASH"
-                },
+                   {
+                     "AttributeName": "MetricName",
+                     "KeyType": "HASH"
+                   },
+                   {
+                     "AttributeName": "Timestamp",
+                     "KeyType": "RANGE"
+                   }
                 ],
             }
     )
