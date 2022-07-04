@@ -16,6 +16,7 @@ from aws_cdk import (
 )
 from constructs import Construct
 from resources import constants as constants
+import random
 
 class Sprint3Stack(Stack):
 
@@ -36,11 +37,6 @@ class Sprint3Stack(Stack):
         tname = DBTable.table_name
         DBLambda.add_environment(key="Alarm_key", value=tname)  # Adding env variable
 
-        # policy for destroying resources
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.core/RemovalPolicy.html#aws_cdk.core.RemovalPolicy
-        WHLambda.apply_removal_policy(RemovalPolicy.DESTROY)
-        DBLambda.apply_removal_policy(RemovalPolicy.DESTROY)
-
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
         schedule = events_.Schedule.rate(Duration.minutes(60)) # for every minute
@@ -60,6 +56,8 @@ class Sprint3Stack(Stack):
         topic.add_subscription(subscriptions_.EmailSubscription(email_address))
         # Lambda Subscription
         topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
+
+        
 
         #-------------------------------------------------------------Sprint #03 Stack Start---------------------------------------------------#
 
@@ -85,11 +83,14 @@ class Sprint3Stack(Stack):
         durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
         invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
+        # Generating a random num to create a unique id
+        rn = random.randint(0,999)
+        
         # Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "Lambda_Alias_Faizan",
-            alias_name="Prod_Alias_Faizan",
+        alias = lambda_.Alias(self, "Lambda_Alias_Faizan" + str(rn),
+            alias_name= "Prod_Alias_Faizan" + str(rn),
             version=version
         )
 
@@ -138,6 +139,15 @@ class Sprint3Stack(Stack):
             availAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
             latenAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
+        # Removal policy to destroy services
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.core/RemovalPolicy.html#aws_cdk.core.RemovalPolicy
+        WHLambda.apply_removal_policy(RemovalPolicy.DESTROY)
+        DBLambda.apply_removal_policy(RemovalPolicy.DESTROY)
+        availAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        latenAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        durationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        invocationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        topic.apply_removal_policy(RemovalPolicy.DESTROY)
 
     # input parameters: id, handler, path and role
     # return values: Lambda function
@@ -153,9 +163,10 @@ class Sprint3Stack(Stack):
     # input parameters: None
     # return values: dynamo_db table
     def create_table(self):
-        return dynamodb_.Table(self, "AlarmInfoTable",
-            partition_key=dynamodb_.Attribute(name="AlarmTime", type=dynamodb_.AttributeType.STRING),
-            removal_policy=RemovalPolicy.DESTROY
+        return dynamodb_.Table(self, id = "AlarmInfoTable",
+            removal_policy=RemovalPolicy.DESTROY,
+            partition_key= dynamodb_.Attribute(name= "MetricName", type= dynamodb_.AttributeType.STRING),
+            sort_key= dynamodb_.Attribute(name= "Timestamp", type= dynamodb_.AttributeType.STRING)
         )
 
     # creating role for policies

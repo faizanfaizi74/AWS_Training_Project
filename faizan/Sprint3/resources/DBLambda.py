@@ -2,26 +2,19 @@ import boto3
 import json
 import os
 
-tablename = os.environ["Alarm_key"]
-dynamodb = boto3.client('dynamodb')
-
 def lambda_handler(event, context):
-    # alarm information in JSON format
-    # parse information to put in DB
+    dynamodb = boto3.resource('dynamodb')
+    tableName = os.environ["Alarm_key"]
+    table = dynamodb.Table(tableName)
 
-    for record in event['Records']:
-
-        message = json.loads(record['Sns']['Message'])
-
-        item = {
-            "AlarmTime": {'S': message["AlarmConfigurationUpdatedTimestamp"]}, # Partition Key
-            "AlarmName": {'S': message["AlarmName"]},
-            "Reason": {'S': message["NewStateReason"]},
-            "Region": {'S': message["Region"]},
-        }
-        response = dynamodb.put_item(
-            TableName = tablename,
-            Item = item
-        )
-    print(event)
-    return response 
+    message = json.loads(event['Records'][0]['Sns']['Message'])
+    
+    table.put_item(
+        Item={
+            'MetricName': message["Trigger"]["MetricName"],
+            'Timestamp': event['Records'][0]['Sns']['Timestamp'],
+            'Region': message["Region"],
+            'AlarmReason': message["NewStateReason"],
+            'URL': message["Trigger"]["Dimensions"][0]["value"],
+        },
+    )
