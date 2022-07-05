@@ -1,0 +1,50 @@
+from aws_cdk import (
+    Stack,
+    pipelines as pipeline_,
+    aws_codepipeline_actions as actions_,
+)
+import aws_cdk as cdk
+from constructs import Construct
+from sprint4.pipeline_stage import FaizanOutputStage
+
+class FaizanPipelineStack(Stack):
+
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+        super().__init__(scope, construct_id, **kwargs)
+        # Access the CommitId of a GitHub source in the synth
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.pipelines/CodePipelineSource.html
+        # Create Secret Token
+        # https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/create-secret.html
+        source = pipeline_.CodePipelineSource.git_hub("muhammadfaizan2022skipq/Pegasus_Python", "main",
+            authentication = cdk.SecretValue.secrets_manager("mytokenNew"),
+            trigger = actions_.GitHubTrigger('POLL'))
+
+        # Output build Artifact
+        mypipeline = pipeline_.CodePipeline(self, "FaizanPipeline",
+            synth=pipeline_.ShellStep("Synth",
+                input=source,
+                commands=[
+                    'cd faizan/Sprint4/',
+                    'pip install -r requirements.txt',
+                    'npm install -g aws-cdk',
+                    'cdk synth'],
+                primary_output_directory = 'faizan/Sprint4/cdk.out',)
+        )
+
+        unit_test = pipeline_.ShellStep("Unit Testing",
+            commands=[
+                'cd faizan/Sprint4/',
+                'pip install -r requirements.txt',
+                'pip install -r requirements-dev.txt',
+                'pytest'],
+        )
+
+        # 'MyApplication' is defined below. Call `addStage` as many times as
+        # necessary with any account and region (may be different from the
+        # pipeline's).
+
+        alpha = FaizanOutputStage(self, "FaizanUnitStage")
+        prod = FaizanOutputStage(self, "FaizanProdStage")
+
+        mypipeline.add_stage(stage=alpha, pre=[unit_test])
+        mypipeline.add_stage(stage=prod, pre=[pipeline_.ManualApprovalStep("PromoteToProd")])
