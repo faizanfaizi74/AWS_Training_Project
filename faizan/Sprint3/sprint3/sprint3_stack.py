@@ -26,12 +26,13 @@ class Sprint3Stack(Stack):
         # creating lambda function for deploying WHLambda.py and DBLambda.py
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html
         lambda_role = self.create_role()
+
         WHLambda = self.create_lambda("WH_Functions", "WHLambda.lambda_handler", "./resources", lambda_role)
         DBLambda = self.create_lambda("DB_Functions", "DBLambda.lambda_handler", "./resources", lambda_role)
   
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_dynamodb/Table.html
-
-        DBTable = self.create_table()
+        iid = "AlarmInfoTable"
+        DBTable = self.create_table(iid)
 
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         tname = DBTable.table_name
@@ -39,7 +40,7 @@ class Sprint3Stack(Stack):
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
-        schedule = events_.Schedule.rate(Duration.minutes(60)) # for every minute
+        schedule = events_.Schedule.rate(Duration.minutes(60)) # for every 60th minute
         target = targets_.LambdaFunction(handler=WHLambda)
         
         rule = events_.Rule(self, "LambdaEventRule",
@@ -47,17 +48,17 @@ class Sprint3Stack(Stack):
             targets=[target]
         )
         
-        # Creating an SNS Topic
+        # Creating an SNS Topic to send email notification
         # https://docs.aws.amazon.com/cdks/api/v1/python/aws_cdk.aws_sns/Topic.html
         topic = sns_.Topic(self, "AlarmNotification")
 
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_sns_subscriptions/EmailSubscription.html
         email_address = "muhammadfaizan.ikram.skipq@gmail.com"
         topic.add_subscription(subscriptions_.EmailSubscription(email_address))
-        # Lambda Subscription
-        topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
-        
+
+        # Lambda Subscription - to send alarm data into lambda
+        topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
         #-------------------------------------------------------------Sprint #03 Stack Start---------------------------------------------------#
 
@@ -162,8 +163,8 @@ class Sprint3Stack(Stack):
 
     # input parameters: None
     # return values: dynamo_db table
-    def create_table(self):
-        return dynamodb_.Table(self, id = "AlarmInfoTable",
+    def create_table(self, id_):
+        return dynamodb_.Table(self, id_,
             removal_policy=RemovalPolicy.DESTROY,
             partition_key= dynamodb_.Attribute(name= "MetricName", type= dynamodb_.AttributeType.STRING),
             sort_key= dynamodb_.Attribute(name= "Timestamp", type= dynamodb_.AttributeType.STRING)

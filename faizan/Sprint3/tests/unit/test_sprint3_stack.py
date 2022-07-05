@@ -5,58 +5,41 @@ import pytest
 
 from sprint3.sprint3_stack import Sprint3Stack
 
-# class Tests:
-#     def __init__(self, app, stack, template):
-#         self.app = app
-#         self.stack = stack
-#         self.app = app
-
-# Tests for Cloudformation Template
-
-def test_to_json():
+# Pytest fixture
+# https://docs.pytest.org/en/6.2.x/fixture.html
+@pytest.fixture
+def test_app():
     app = core.App()
     stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
     # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
+    template = assertions.Template.from_stack(stack)
+    return template
+    
+
+def test_to_json(test_app):
     # Assert that the CloudFormation template deserialized into an object
-    template.to_json()
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.to_json
+    test_app.to_json()
 
-
-def test_lambda_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
+def test_lambda_created(test_app):
     # Assert that we have created 2 Lambda
-    template.resource_count_is("AWS::Lambda::Function", 2)
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.resource_count_is
+    test_app.resource_count_is("AWS::Lambda::Function", 2)
 
-def test_subscription_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
+def test_subscription_created(test_app):
     # Assert that we have created 2 subscriptions
-    template.resource_count_is("AWS::SNS::Subscription", 2)
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.resource_count_is
+    test_app.resource_count_is("AWS::SNS::Subscription", 2)
 
-def test_table_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
+def test_table_created(test_app):
     # Assert that we have created a table
-    template.resource_count_is("AWS::DynamoDB::Table", 1)
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.resource_count_is
+    test_app.resource_count_is("AWS::DynamoDB::Table", 1)
 
-def test_role_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
-    template.has_resource_properties(
+def test_role_created(test_app):
+    # Assert that role has same properties
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
+    test_app.has_resource_properties(
         "AWS::IAM::Role",
             {
                 "ManagedPolicyArns": [
@@ -88,13 +71,10 @@ def test_role_created():
         }
     )
 
-def test_composite_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
-    template.has_resource_properties(
+def test_composite_created(test_app):
+    # Assert that we have composite keys in table with same name
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
+    test_app.has_resource_properties(
         "AWS::DynamoDB::Table",
             {
                 "KeySchema": [
@@ -111,31 +91,22 @@ def test_composite_created():
     )
 
 
-def test_lambda_subscription_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
-    template.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "lambda"})
+def test_lambda_subscription_created(test_app):
+    # Assert that we have subscription protocol for lambda
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
+    test_app.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "lambda"})
 
 
-def test_email_subscription_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
-    template.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "email"})
+def test_email_subscription_created(test_app):
+    # Assert that we have subscription protocol for email
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
+    test_app.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "email"})
     
 
-def test_rule_created():
-    app = core.App()
-    stack = Sprint3Stack(app, "sprint3")
-    template = assertions.Template.from_stack(stack)
-
-    # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.assertions/Template.html
-    template.has_resource_properties(
+def test_rule_created(test_app):
+    # Assert that we have same properties for rule
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
+    test_app.has_resource_properties(
         "AWS::Events::Rule",
             {
                 "State": "ENABLED",

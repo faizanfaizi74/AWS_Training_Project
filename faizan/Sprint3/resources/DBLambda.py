@@ -3,6 +3,7 @@ import json
 import os
 
 def lambda_handler(event, context):
+    
     dynamodb = boto3.resource('dynamodb')
     tableName = os.environ["Alarm_key"]
     table = dynamodb.Table(tableName)
