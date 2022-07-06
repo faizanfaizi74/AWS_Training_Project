@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     # dynamodb = boto3.resource('dynamodb')
 
     # # set environment variable
-    # tableName = os.environ["URL_TABLE"]
+    # tableName = os.environ["API_TABLE"]
     # table = dynamodb.Table(tableName)
 
     # # create/read/update/delete

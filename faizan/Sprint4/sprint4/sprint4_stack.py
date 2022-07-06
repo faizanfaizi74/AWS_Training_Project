@@ -39,7 +39,7 @@ class Sprint4Stack(Stack):
         # set environment variable
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         tname = DBTable.table_name
-        DBLambda.add_environment(key="Alarm_key", value=tname)
+        DBLambda.add_environment(key="Alarm_Key", value=tname)
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
@@ -90,15 +90,12 @@ class Sprint4Stack(Stack):
         # add SNS action to topic
         durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
         invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
-
-        # generate a random num to create a unique id
-        rn = random.randint(0,900)
         
         # create Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "Alias_FaizanLambda" + str(rn),
-            alias_name= "Alias_FaizanProduction" + str(rn),
+        alias = lambda_.Alias(self, "Faizan_Lambda_Alias"+construct_id,
+            alias_name= "Prod_Faizan_Alias"+construct_id,
             version=version
         )
 
