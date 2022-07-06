@@ -59,12 +59,12 @@ def post_get_put_delete(link, method):
         return json_response({"message": "Successfully deleted URL from the table"})
 
     #4. PUT (Update) Item by Id
+
+    # Note: You cannot use UpdateItem to update any primary key attributes.
+    # Instead, you will need to delete the item, and then use PutItem to create a new item with new attributes
+    # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Table.update_item
     elif method == 'PUT':
-        attribute_updates = {key: {'Value': value, 'Action': 'PUT'}
-                             for key, value in request.form.items()}
-
-        table.update_item(Key=key, AttributeUpdates=attribute_updates)
-
+        
         return json_response({"message": "Successfully updated URL in the table"})
 
     else:
