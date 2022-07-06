@@ -94,13 +94,13 @@ class Sprint4Stack(Stack):
         # create Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "Faizan_Lambda_2Alias",
-            alias_name= "Prod_Faizan_2Alias",
+        alias = lambda_.Alias(self, "Lambda_Faizan_alias",
+            alias_name= "Prod_Faizan_alias",
             version=version
         )
 
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
-        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambdaDeployment",
+        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambda_BG_Deployment",
             alias = alias,
             alarms = [durationAlarm, invocationAlarm],
             deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
