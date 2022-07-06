@@ -92,13 +92,13 @@ class Sprint4Stack(Stack):
         invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
         # generate a random num to create a unique id
-        rn = random.randint(0,999)
+        rn = random.randint(0,900)
         
         # create Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
-        alias = lambda_.Alias(self, "Lambda_Alias_Faizan" + str(rn),
-            alias_name= "Prod_Alias_Faizan" + str(rn),
+        alias = lambda_.Alias(self, "Alias_Faizan_Lambdaa" + str(rn),
+            alias_name= "Alias_Faizan_Production" + str(rn),
             version=version
         )
 
