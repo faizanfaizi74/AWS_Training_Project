@@ -24,7 +24,7 @@ def test_to_json(test_app):
 def test_lambda_created(test_app):
     # Assert that we have created 2 Lambda
     # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.resource_count_is
-    test_app.resource_count_is("AWS::Lambda::Function", 2)
+    test_app.resource_count_is("AWS::Lambda::Function", 3)
 
 def test_subscription_created(test_app):
     # Assert that we have created 2 subscriptions
@@ -34,7 +34,7 @@ def test_subscription_created(test_app):
 def test_table_created(test_app):
     # Assert that we have created a table
     # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.resource_count_is
-    test_app.resource_count_is("AWS::DynamoDB::Table", 1)
+    test_app.resource_count_is("AWS::DynamoDB::Table", 2)
 
 def test_role_created(test_app):
     # Assert that role has same properties

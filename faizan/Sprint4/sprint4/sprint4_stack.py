@@ -24,49 +24,53 @@ class Sprint4Stack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # creating lambda function for deploying WHLambda.py and DBLambda.py
+        # create lambda functions
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html
         lambda_role = self.create_role()
 
         WHLambda = self.create_lambda("WH_Functions", "WHLambda.lambda_handler", "./resources", lambda_role)
         DBLambda = self.create_lambda("DB_Functions", "DBLambda.lambda_handler", "./resources", lambda_role)
         APILambda = self.create_lambda("API_Functions", "APILambda.lambda_handler", "./resources", lambda_role)
-  
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_dynamodb/Table.html
-        iid = "AlarmInfoTable"
-        DBTable = self.create_table(iid)
 
+        # create table
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_dynamodb/Table.html 
+        DBTable = self.create_table(constants.ALARM_TABLE_NAME)
+
+        # set environment variable
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         tname = DBTable.table_name
-        DBLambda.add_environment(key="Alarm_key", value=tname)  # Adding env variable
+        DBLambda.add_environment(key="Alarm_key", value=tname)
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
-        schedule = events_.Schedule.rate(Duration.minutes(60)) # for every 60th minute
+        schedule = events_.Schedule.rate(Duration.minutes(constants.SCHEDULE_TIME_CONSTANT)) # for every 60th minute
         target = targets_.LambdaFunction(handler=WHLambda)
-        
+
+        # create a Cloudwatch Event rule
         rule = events_.Rule(self, "LambdaEventRule",
             schedule=schedule,
             targets=[target]
         )
         
-        # Creating an SNS Topic to send email notification
+        # create an SNS Topic to send email notification
         # https://docs.aws.amazon.com/cdks/api/v1/python/aws_cdk.aws_sns/Topic.html
         topic = sns_.Topic(self, "AlarmNotification")
 
+
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_sns_subscriptions/EmailSubscription.html
-        email_address = "muhammadfaizan.ikram.skipq@gmail.com"
-        topic.add_subscription(subscriptions_.EmailSubscription(email_address))
+        topic.add_subscription(subscriptions_.EmailSubscription(constants.SNS_EMAIL_ADDRESS))
 
 
-        # Lambda Subscription - to send alarm data into lambda
+        # create Lambda Subscription - to send alarm data into DynamoDB table
         topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
-        #-------------------------------------------------------------Sprint #03 Stack Start---------------------------------------------------#
+
+        #-------------------------------Sprint #03 Stack Start - Lamnda Auto Deployment Configuration and Rollback-------------------------#
+
 
         #Step:01 Get the metric
-        WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(60))
-        WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(60))
+        WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
+        WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
 
         #Step:02 Create Alarms for metric
         durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
@@ -83,13 +87,14 @@ class Sprint4Stack(Stack):
             metric=WHLambdaInvocationMetric,
             )
 
+        # add SNS action to topic
         durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
         invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
 
-        # Generating a random num to create a unique id
+        # generate a random num to create a unique id
         rn = random.randint(0,999)
         
-        # Lambda deployment configuration and rollback
+        # create Lambda deployment configuration and rollback
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
         version = WHLambda.current_version
         alias = lambda_.Alias(self, "Lambda_Alias_Faizan" + str(rn),
@@ -104,39 +109,41 @@ class Sprint4Stack(Stack):
             deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
         )
 
-        #-------------------------------------------------------------Sprint #03 Stack End---------------------------------------------------#
-
         
-        #-------------------------------------------------------------Sptint #4 Stack Start--------------------------------------------------#
+        #------------------------------------------Sptint #4 Stack Start - API Gateway Integration---------------------------------#
         
-        api_id = "URL_Table"
-        APITable = self.create_table(api_id)
+        
+        # create table
+        APITable = self.create_table(constants.API_TABLE_NAME)
 
+        # set environment variable
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         apitname = APITable.table_name
-        DBLambda.add_environment(key="API_TABLE", value=apitname)  # Adding env variable
+        APILambda.add_environment(key="API_TABLE", value=apitname)
 
-
-        # Creating REST API Gateway
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/RestApi.html
-        api = apigateway_.RestApi(self, id = "FaizanAPI",
+        # create REST API Gateway integrated with `APILambda backend`
+        # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_apigateway/LambdaRestApi.html
+        api = apigateway_.LambdaRestApi(self, id = "FaizanAPI",
+                handler= APILambda,
+                proxy=False,
                 endpoint_configuration= apigateway_.EndpointConfiguration(
-                types=[apigateway_.EndpointType.REGIONAL]
+                types= [apigateway_.EndpointType.REGIONAL]
             )
         )
-        # Lambda Integration and add_methhod
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/LambdaIntegration.html
+
+        # add resource and method
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/Resource.html
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/IResource.html#aws_cdk.aws_apigateway.IResource.add_method
-        resource = api.root.add_resources('items')
-        resource.add_method("GET", apigateway_.LambdaIntegration(handler=APILambda, proxy=false))
+        items = api.root.add_resource("items")      # path to resource
+        items.add_method("POST")                    # POST: (Create) /items      
+        items.add_method("GET")                     # GET: (Read) /items
+        items.add_method("DELETE")                  # DELETE: /items
+        items.add_method("PUT")                     # PUT: (Update) /items
 
-        # proxy = resource.add_proxy(
-        #     default_integration=apigateway_.LambdaIntegration(handler=APILambda),
-        #     # "false" will require explicitly adding methods on the `proxy` resource
-        #     any_method=True
-        # )
 
-        #------------------------------------------------------------Sptint #4 Stack End------------------------------------------------------#
-                
+        #-------------------------------------------------------------------------------------------------------------------------#
+
+
         for url in constants.URL_TO_MONITOR:
             # creating Metric for Availability and Latency
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
@@ -144,13 +151,13 @@ class Sprint4Stack(Stack):
             availMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_AVAILABILITY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map={"URL" : url},
-            period=Duration.minutes(constants.URL_TIME_CONSTANT)
+            period=Duration.minutes(constants.TIME_CONSTANT)
             )
 
             latenMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_LATENCY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map={"URL" : url},
-            period=Duration.minutes(constants.URL_TIME_CONSTANT)
+            period=Duration.minutes(constants.TIME_CONSTANT)
             )
 
             # define threshold and create Alarms for Availability and Latency metric
