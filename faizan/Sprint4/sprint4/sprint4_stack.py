@@ -111,12 +111,12 @@ class Sprint4Stack(Stack):
         
         
         # create table
-        APITable = self.create_table(constants.API_TABLE_NAME)
+        URLTable = self.create_API_table(constants.API_TABLE_NAME)
 
         # set environment variable
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
-        apitname = APITable.table_name
-        APILambda.add_environment(key="API_TABLE", value=apitname)
+        apitname = URLTable.table_name
+        APILambda.add_environment(key="URL_TABLE", value=apitname)
 
         # create REST API Gateway integrated with `APILambda backend`
         # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_apigateway/LambdaRestApi.html
@@ -127,6 +127,10 @@ class Sprint4Stack(Stack):
                 types= [apigateway_.EndpointType.REGIONAL]
             )
         )
+
+        # define API Gateway permissions to invoke  APIlambda
+        # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_lambda/Function.html?highlight=grant%20invoke#aws_cdk.aws_lambda.Function.grant_invoke
+        APILambda.grant_invoke(iam_.ServicePrincipal("apigateway.amazonaws.com"))
 
         # add resource and method
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/Resource.html
@@ -205,6 +209,12 @@ class Sprint4Stack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
             partition_key= dynamodb_.Attribute(name= "MetricName", type= dynamodb_.AttributeType.STRING),
             sort_key= dynamodb_.Attribute(name= "Timestamp", type= dynamodb_.AttributeType.STRING)
+        )
+
+    def create_API_table(self, id_):
+        return dynamodb_.Table(self, id_,
+            removal_policy=RemovalPolicy.DESTROY,
+            partition_key= dynamodb_.Attribute(name= "Linkid", type= dynamodb_.AttributeType.STRING),
         )
 
     # creating role for policies
