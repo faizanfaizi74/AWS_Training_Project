@@ -23,6 +23,7 @@ def lambda_handler(event, context):
     response = table.scan()['Items']
     for i in range(len(response)):
         constants.MY_URLS_VAR.append(response[i]["url"])
+        print(constanst.MY_URLS_VAR)
 
     #####################################################################################################
 

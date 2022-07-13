@@ -159,13 +159,13 @@ class Sprint4Stack(Stack):
             availMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_AVAILABILITY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map={"URL" : url},
-            period=Duration.minutes(constants.TIME_CONSTANT)
+            period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT)
             )
 
             latenMetric = cloudwatch_.Metric(metric_name=constants.URL_MONITOR_NAME_LATENCY,
             namespace=constants.URL_MONITOR_NAMESPACE,
             dimensions_map={"URL" : url},
-            period=Duration.minutes(constants.TIME_CONSTANT)
+            period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT)
             )
 
             # define threshold and create Alarms for Availability and Latency metric
@@ -179,7 +179,7 @@ class Sprint4Stack(Stack):
 
             latenAlarm = cloudwatch_.Alarm(self, "LatencyAlarmfor_"+url,
             comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold=0.1,
+            threshold=0.4,
             evaluation_periods=1,
             metric=latenMetric
             )
@@ -187,8 +187,6 @@ class Sprint4Stack(Stack):
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch_actions/SnsAction.html
             availAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
             latenAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
-            availAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
-            latenAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
 
         # Removal policy to destroy services
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.core/RemovalPolicy.html#aws_cdk.core.RemovalPolicy
@@ -198,6 +196,7 @@ class Sprint4Stack(Stack):
         durationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
         invocationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
         topic.apply_removal_policy(RemovalPolicy.DESTROY)
+        api.apply_removal_policy(RemovalPolicy.DESTROY)
 
     # input parameters: id, handler, path and role
     # return values: Lambda function
@@ -207,7 +206,7 @@ class Sprint4Stack(Stack):
         handler=handler,
         code=lambda_.Code.from_asset(path),
         role=myRole,
-        timeout=Duration.seconds(300),
+        timeout=Duration.seconds(600),
         )
 
     # input parameters: None
