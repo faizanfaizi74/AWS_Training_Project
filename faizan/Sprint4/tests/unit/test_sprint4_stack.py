@@ -71,8 +71,8 @@ def test_role_created(test_app):
         }
     )
 
-def test_composite_created(test_app):
-    # Assert that we have composite keys in table with same name
+def test_alarm_composite_key_created(test_app):
+    # Assert that we have composite keys in Alarm table with same name
     # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
     test_app.has_resource_properties(
         "AWS::DynamoDB::Table",
@@ -89,6 +89,23 @@ def test_composite_created(test_app):
                 ],
             }
     )
+
+
+def test_url_partition_key_created(test_app):
+    # Assert that we have partition key in URL table with same name
+    # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.assertions/Template.html#aws_cdk.assertions.Template.has_resource_properties
+    test_app.has_resource_properties(
+        "AWS::DynamoDB::Table",
+            {
+                "KeySchema": [
+                   {
+                     "AttributeName": "linkID",
+                     "KeyType": "HASH"
+                   },
+                ],
+            }
+    )
+
 
 
 def test_lambda_subscription_created(test_app):

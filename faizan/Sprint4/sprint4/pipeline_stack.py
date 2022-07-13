@@ -20,7 +20,7 @@ class FaizanPipelineStack(Stack):
             trigger = actions_.GitHubTrigger('POLL'))
 
         # Output build Artifact
-        mypipeline = pipeline_.CodePipeline(self, "FaizanPipeline",
+        mypipeline = pipeline_.CodePipeline(self, "FaizanCodePipeline",
             synth=pipeline_.ShellStep("Synth",
                 input=source,
                 commands=[

@@ -64,49 +64,53 @@ class Sprint4Stack(Stack):
         topic.add_subscription(subscriptions_.LambdaSubscription(DBLambda))
 
 
-        #-------------------------------Sprint #03 Stack Start - Lamnda Auto Deployment Configuration and Rollback-------------------------#
+        ##################################################################################################################
+        #                   Sprint #03 Stack Start - Lamnda Auto Deployment Configuration and Rollback                   #
+        ##################################################################################################################
 
 
-        # #Step:01 Get the metric
-        # WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
-        # WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
+        #Step:01 Get the metric
+        WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
+        WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
 
-        # #Step:02 Create Alarms for metric
-        # durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
-        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        #     threshold=1,
-        #     evaluation_periods=1,
-        #     metric=WHLambdaDurationMetric,
-        #     )
+        #Step:02 Create Alarms for metric
+        durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
+            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold=4000,
+            evaluation_periods=1,
+            metric=WHLambdaDurationMetric,
+            )
 
-        # invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Invocation",
-        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        #     threshold=1,
-        #     evaluation_periods=1,
-        #     metric=WHLambdaInvocationMetric,
-        #     )
+        invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Invocation",
+            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold=1,
+            evaluation_periods=1,
+            metric=WHLambdaInvocationMetric,
+            )
 
-        # # add SNS action to topic
-        # durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
-        # invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        # add SNS action to topic
+        durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
         
-        # # create Lambda deployment configuration and rollback
-        # # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
-        # version = WHLambda.current_version
-        # alias = lambda_.Alias(self, "Lambda_Alias_Faizan"+construct_id,
-        #     alias_name= "Prod_Alias_Faizan"+construct_id,
-        #     version=version
-        # )
+        # create Lambda deployment configuration and rollback
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
+        version = WHLambda.current_version
+        alias = lambda_.Alias(self, "Lambda_Alias_Faizan_Pipeline"+construct_id,
+            alias_name= "Prod_Alias_Faizan_Pipeline"+construct_id,
+            version=version
+        )
 
-        # # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
-        # deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambda_BG_Deployment",
-        #     alias = alias,
-        #     alarms = [durationAlarm, invocationAlarm],
-        #     deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
-        # )
+        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
+        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambda_BG_Deployment",
+            alias = alias,
+            alarms = [durationAlarm, invocationAlarm],
+            deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
+        )
 
         
-        #------------------------------------------Sptint #4 Stack Start - API Gateway Integration---------------------------------#
+        ##################################################################################################################
+        #                                   Sptint #4 Stack Start - API Gateway Integration                              #
+        ##################################################################################################################
         
         
         # create table
@@ -142,7 +146,9 @@ class Sprint4Stack(Stack):
         root.add_method("DELETE")                  # DELETE: /root
         root.add_method("PUT")                     # PUT: (Update) /root
 
-        #-------------------------------------------------------------------------------------------------------------------------#
+
+        ##################################################################################################################
+
 
         # loop into the list of url
         for url in constants.MY_URLS_VAR:
@@ -188,8 +194,8 @@ class Sprint4Stack(Stack):
         WHLambda.apply_removal_policy(RemovalPolicy.DESTROY)
         DBLambda.apply_removal_policy(RemovalPolicy.DESTROY)
         APILambda.apply_removal_policy(RemovalPolicy.DESTROY)
-        #durationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
-        #invocationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        durationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        invocationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
         topic.apply_removal_policy(RemovalPolicy.DESTROY)
 
     # input parameters: id, handler, path and role

@@ -21,6 +21,10 @@ for index, value in enumerate(constants.URL_TO_MONITOR):
         }
     )
 
+##################################################################################################################
+#                                                   CRUD Operations                                              #
+##################################################################################################################
+
 def lambda_handler(event, context):
     # # Get the method
     method = event['httpMethod']
