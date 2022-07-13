@@ -17,7 +17,6 @@ from aws_cdk import (
 )
 from constructs import Construct
 from resources import constants as constants
-import random
 
 class Sprint4Stack(Stack):
 
@@ -39,7 +38,7 @@ class Sprint4Stack(Stack):
         # set environment variable
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         tname = DBTable.table_name
-        DBLambda.add_environment(key="Alarm_Key", value=tname)
+        DBLambda.add_environment(key="Alarm_Table", value=tname)
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
@@ -68,43 +67,43 @@ class Sprint4Stack(Stack):
         #-------------------------------Sprint #03 Stack Start - Lamnda Auto Deployment Configuration and Rollback-------------------------#
 
 
-        #Step:01 Get the metric
-        WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
-        WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
+        # #Step:01 Get the metric
+        # WHLambdaDurationMetric = WHLambda.metric("Duration", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
+        # WHLambdaInvocationMetric = WHLambda.metric("Invocations", period=Duration.minutes(constants.SCHEDULE_TIME_CONSTANT))
 
-        #Step:02 Create Alarms for metric
-        durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
-            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold=1,
-            evaluation_periods=1,
-            metric=WHLambdaDurationMetric,
-            )
+        # #Step:02 Create Alarms for metric
+        # durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
+        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+        #     threshold=1,
+        #     evaluation_periods=1,
+        #     metric=WHLambdaDurationMetric,
+        #     )
 
-        invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Invocation",
-            comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold=1,
-            evaluation_periods=1,
-            metric=WHLambdaInvocationMetric,
-            )
+        # invocationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Invocation",
+        #     comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
+        #     threshold=1,
+        #     evaluation_periods=1,
+        #     metric=WHLambdaInvocationMetric,
+        #     )
 
-        # add SNS action to topic
-        durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
-        invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        # # add SNS action to topic
+        # durationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+        # invocationAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
         
-        # create Lambda deployment configuration and rollback
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
-        version = WHLambda.current_version
-        alias = lambda_.Alias(self, "Lambda_Alias_Faizan"+construct_id,
-            alias_name= "Prod_Alias_Faizan"+construct_id,
-            version=version
-        )
+        # # create Lambda deployment configuration and rollback
+        # # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Alias.html#aws_cdk.aws_lambda.Alias
+        # version = WHLambda.current_version
+        # alias = lambda_.Alias(self, "Lambda_Alias_Faizan"+construct_id,
+        #     alias_name= "Prod_Alias_Faizan"+construct_id,
+        #     version=version
+        # )
 
-        # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
-        deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambda_BG_Deployment",
-            alias = alias,
-            alarms = [durationAlarm, invocationAlarm],
-            deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
-        )
+        # # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_codedeploy/LambdaDeploymentGroup.html
+        # deployment_group = codedeploy_.LambdaDeploymentGroup(self, "FaizanLambda_BG_Deployment",
+        #     alias = alias,
+        #     alarms = [durationAlarm, invocationAlarm],
+        #     deployment_config = codedeploy_.LambdaDeploymentConfig.LINEAR_10_PERCENT_EVERY_1_MINUTE
+        # )
 
         
         #------------------------------------------Sptint #4 Stack Start - API Gateway Integration---------------------------------#
@@ -117,6 +116,8 @@ class Sprint4Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         apitname = URLTable.table_name
         APILambda.add_environment(key="URL_TABLE", value=apitname)
+
+        #Define API
 
         # create REST API Gateway integrated with `APILambda backend`
         # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_apigateway/LambdaRestApi.html
@@ -132,20 +133,19 @@ class Sprint4Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_lambda/Function.html?highlight=grant%20invoke#aws_cdk.aws_lambda.Function.grant_invoke
         APILambda.grant_invoke(iam_.ServicePrincipal("apigateway.amazonaws.com"))
 
-        # add resource and method
+        # add resource and methods
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/Resource.html
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/IResource.html#aws_cdk.aws_apigateway.IResource.add_method
-        items = api.root.add_resource("items")      # path to resource
-        items.add_method("POST")                    # POST: (Create) /items      
-        items.add_method("GET")                     # GET: (Read) /items
-        items.add_method("DELETE")                  # DELETE: /items
-        items.add_method("PUT")                     # PUT: (Update) /items
-
+        root = api.root.add_resource("root")      # path to resource
+        root.add_method("POST")                    # POST: (Create) /root      
+        root.add_method("GET")                     # GET: (Read) /root
+        root.add_method("DELETE")                  # DELETE: /root
+        root.add_method("PUT")                     # PUT: (Update) /root
 
         #-------------------------------------------------------------------------------------------------------------------------#
 
-
-        for url in constants.URL_TO_MONITOR:
+        # loop into the list of url
+        for url in constants.MY_URLS_VAR:
             # creating Metric for Availability and Latency
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
 
@@ -180,15 +180,16 @@ class Sprint4Stack(Stack):
             # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch_actions/SnsAction.html
             availAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
             latenAlarm.add_alarm_action(cw_actions_.SnsAction(topic))
+            availAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+            latenAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
 
         # Removal policy to destroy services
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.core/RemovalPolicy.html#aws_cdk.core.RemovalPolicy
         WHLambda.apply_removal_policy(RemovalPolicy.DESTROY)
         DBLambda.apply_removal_policy(RemovalPolicy.DESTROY)
-        availAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
-        latenAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
-        durationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
-        invocationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        APILambda.apply_removal_policy(RemovalPolicy.DESTROY)
+        #durationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
+        #invocationAlarm.apply_removal_policy(RemovalPolicy.DESTROY)
         topic.apply_removal_policy(RemovalPolicy.DESTROY)
 
     # input parameters: id, handler, path and role
@@ -214,7 +215,7 @@ class Sprint4Stack(Stack):
     def create_API_table(self, id_):
         return dynamodb_.Table(self, id_,
             removal_policy=RemovalPolicy.DESTROY,
-            partition_key= dynamodb_.Attribute(name= "Linkid", type= dynamodb_.AttributeType.STRING),
+            partition_key= dynamodb_.Attribute(name= "linkID", type= dynamodb_.AttributeType.STRING)
         )
 
     # creating role for policies

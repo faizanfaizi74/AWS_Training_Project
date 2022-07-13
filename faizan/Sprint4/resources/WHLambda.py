@@ -3,15 +3,32 @@ import urllib3
 from datetime import datetime
 from CloudwatchPutMetric import CloudwatchPutMetric
 import constants as constants
+import boto3
+import os
 
 def lambda_handler(event, context):
     # get latency and availability of the web resource
     values = dict()
+    #--------------------------------------- Get the URLs list from table ------------------------------#
+    #---------------------------------- And append that list in constant file  -------------------------#
+    
+    # Get the service resource.
+    dynamodb = boto3.resource('dynamodb')
+    # set environment variable
+    tableName = os.environ["URL_TABLE"]
+    table = dynamodb.Table(tableName)
+
+    response = table.scan()['Items']
+    for i in range(len(response)):
+        constants.MY_URLS_VAR.append(response[i]["url"])
+
+    #-------------------------------------------------------------------------------------------------------#
+
     cw = CloudwatchPutMetric()
 
-    for url in constants.URL_TO_MONITOR:
+    # loop the list of url
+    for url in constants.MY_URLS_VAR:
         # code for links here
-        
         availability = getAvailability(url)
         latency = getLatency(url)
         values.update({"Availability": availability, "Latency": latency})

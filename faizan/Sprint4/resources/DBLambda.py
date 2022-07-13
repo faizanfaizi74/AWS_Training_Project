@@ -7,7 +7,7 @@ def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
 
     # set environment variable
-    tableName = os.environ["Alarm_Key"]
+    tableName = os.environ["Alarm_Table"]
     table = dynamodb.Table(tableName)
 
     message = json.loads(event['Records'][0]['Sns']['Message'])
