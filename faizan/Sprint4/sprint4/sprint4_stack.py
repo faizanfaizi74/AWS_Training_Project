@@ -120,6 +120,7 @@ class Sprint4Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_lambda/Function.html#aws_cdk.aws_lambda.Function.add_environment
         apitname = URLTable.table_name
         APILambda.add_environment(key="URL_TABLE", value=apitname)
+        WHLambda.add_environment(key="URL_TABLE", value=apitname)
 
         #Define API
 
