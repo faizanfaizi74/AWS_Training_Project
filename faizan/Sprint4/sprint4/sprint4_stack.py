@@ -76,7 +76,7 @@ class Sprint4Stack(Stack):
         #Step:02 Create Alarms for metric
         durationAlarm = cloudwatch_.Alarm(self, "WHLambdaAlarmfor_Duration",
             comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold=4000,
+            threshold=1,
             evaluation_periods=1,
             metric=WHLambdaDurationMetric,
             )
