@@ -89,7 +89,7 @@ The documentation is available on [GitHub](https://github.com/muhammadfaizan2022
 
 ## How to contribute
 
-If you'd like to contribute, start by searching through the [pull requests](https://github.com/github/opensource.guide/pulls) to see whether someone else has raised a similar idea or question.
+If you'd like to contribute, start by searching through the [pull requests](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/pulls) to see whether someone else has raised a similar idea or question.
 
 If you don't see your idea listed, and you think it fits into the goals of this guide, open a pull request.
 

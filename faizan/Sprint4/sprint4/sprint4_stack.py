@@ -141,7 +141,7 @@ class Sprint4Stack(Stack):
         # add resource and methods
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/Resource.html
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_apigateway/IResource.html#aws_cdk.aws_apigateway.IResource.add_method
-        root = api.root.add_resource("root")      # path to resource
+        root = api.root.add_resource("root")       # path to resource
         root.add_method("POST")                    # POST: (Create) /root      
         root.add_method("GET")                     # GET: (Read) /root
         root.add_method("DELETE")                  # DELETE: /root

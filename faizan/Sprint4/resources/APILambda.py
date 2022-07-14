@@ -11,15 +11,7 @@ dynamodb = boto3.resource('dynamodb')
 # set environment variable
 tableName = os.environ["URL_TABLE"]
 table = dynamodb.Table(tableName)
-    
-# put existing items in table
-for index, value in enumerate(constants.URL_TO_MONITOR):
-    table.put_item(
-        Item={
-            "linkID": str(index), 
-            "url": value
-        }
-    )
+
 
 ##################################################################################################################
 #                                                   CRUD Operations                                              #
