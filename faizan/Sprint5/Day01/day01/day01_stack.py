@@ -60,8 +60,8 @@ class Day01Stack(Stack):
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch/Metric.html
         valueMetric = cloudwatch_.Metric(metric_name=constants.VALUE_MONITOR_NAME_RESPONSE,
             namespace=constants.VALUE_MONITOR_NAMESPACE,
-            dimensions_map={"arg1" : "Value"},
-            period=Duration.minutes(60)
+            dimensions_map={"ARG1" : "arg1"},
+            period=Duration.minutes(1)
         )
 
         # define threshold and create Alarms for Value
@@ -70,7 +70,8 @@ class Day01Stack(Stack):
             comparison_operator=cloudwatch_.ComparisonOperator.GREATER_THAN_THRESHOLD,
             threshold=10,
             evaluation_periods=1,
-            metric=valueMetric
+            metric=valueMetric,
+            datapoints_to_alarm=1,
         )
 
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_cloudwatch_actions/SnsAction.html

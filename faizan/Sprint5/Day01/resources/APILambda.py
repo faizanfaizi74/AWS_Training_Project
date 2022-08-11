@@ -13,13 +13,13 @@ def lambda_handler(event, context):
     value = int(json.loads(body)['arg1'])
 
     print({"ResponseValue": value})
-    print(type(value))             # key = {"arg1": 1}
+    # key = {"arg1": 1}
     
     # Post value to CloudWatch
     cw = CloudwatchPutMetric()
 
     if method == 'POST':
-        dimension = [{'Name': 'arg1','Value': str(value)}]
+        dimension = [{'Name': 'ARG1','Value': "arg1"}]
         
         responseAvail = cw.put_data(constants.VALUE_MONITOR_NAMESPACE,
         constants.VALUE_MONITOR_NAME_RESPONSE,
