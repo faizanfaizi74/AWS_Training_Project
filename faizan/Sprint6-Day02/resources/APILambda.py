@@ -1,33 +1,56 @@
 import json
-from CloudwatchPutMetric import CloudwatchPutMetric
 import constants as constants
+import boto3
+import os
+
+# Get the service resource.
+dynamodb = boto3.resource('dynamodb')
+
+# set environment variable
+tableName = os.environ["RESPONSE_TABLE"]
+table = dynamodb.Table(tableName)
 
 #################################   API Operations   ################################
 
 def lambda_handler(event, context):
+    print("Event: ", event)
     # # Get the method
     method = event['httpMethod']
+    requestTime = event["requestTime"]
     body = event['body']
-    
+
+    print("Body: ", body)
+    print("RequestTime: ", requestTime)
+
     # Get the val
-    value = int(json.loads(body)['arg1'])
+    json_obj = json.loads(body)
+    value = int(json_obj[0]['event1']['attr1'])
 
-    print({"ResponseValue": value})
-    # key = {"arg1": 1}
-    
-    # Post value to CloudWatch
-    cw = CloudwatchPutMetric()
+    # key = [{"event1":{"attr1": 897}}]
+    print({"ResponseValue": value})                 
 
+    key = {
+        "attr1": str(value),
+        "requestTime": requestTime,
+    }
     if method == 'POST':
-        dimension = [{'Name': 'ARG1','Value': "arg1"}]
-        
-        responseAvail = cw.put_data(constants.VALUE_MONITOR_NAMESPACE,
-        constants.VALUE_MONITOR_NAME_RESPONSE,
-        dimension, value)
-        return json_response({"message": "Successfully Posted Value"})
-    else:
-        return json_response({"message": "Invalid Allowed!"})
+        response = table.put_item(
+            Item=key,
+        )
+        if response:
+            return json_response({"message": "Successfull..!!"})
+        else:
+            return json_response({"message": "Invalid Response..Try Again!"})
 
+    elif method == 'GET':
+        response = table.scan(Limit=10)['Items']
+        if response:
+            return json_response(response)
+        else:
+            return json_response({"message": "Table is Empty"})
+
+    else:
+        return json_response({"message": "Invalid Method..Try Again!"})
 
 def json_response(data):
     return {

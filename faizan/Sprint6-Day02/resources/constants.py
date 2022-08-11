@@ -7,4 +7,4 @@ SCHEDULE_TIME_CONSTANT = 1
 
 SNS_EMAIL_ADDRESS = "muhammadfaizan.ikram.skipq@gmail.com"
 
-ALARM_TABLE_NAME = "AlarmInfoTable"
+API_TABLE_NAME = "URL_Table"

@@ -7,7 +7,7 @@ from sprint6_day02.sprint6_day02_stack import Sprint6Day02Stack
 
 
 app = cdk.App()
-Sprint6Day02Stack(app, "Sprint6Day02Stack",
+Sprint6Day02Stack(app, "FaizanSprint6Day02Stack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
