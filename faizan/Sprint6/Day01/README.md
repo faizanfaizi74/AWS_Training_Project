@@ -15,7 +15,7 @@ The end goal of this sprint is to build a public serverless API Gateway endpoint
 
 ### Application Design
 
-
+![App Design](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day01/design-day-01.drawio.png)
 
 ### TECHNOLOGIES USED
 
