@@ -7,7 +7,7 @@ from day02.day02_stack import Day02Stack
 
 
 app = cdk.App()
-Day02Stack(app, "Day02Stack",
+Day02Stack(app, "FaizanDay02Stack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
