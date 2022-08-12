@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     body = event['body']
 
     print("Body: ", body)
-    print("RequestTime: ", requestTime)
+    print("RequestTime: ", iso_date)
 
     if method == 'POST':
         # Get the val
@@ -57,9 +57,9 @@ def lambda_handler(event, context):
         myList.sort(reverse=True)
 
         if len(myList) > 10:
-            response = json.dumps(myList[:10], default=str)
+            response = myList[:10]
         else:
-            response = json.dumps(myList, default=str)
+            response = myList
 
         if response:
             return json_response(response)
