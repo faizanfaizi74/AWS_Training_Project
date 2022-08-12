@@ -20,7 +20,7 @@ def lambda_handler(event, context):
     # # Get the method
     
     method = event['httpMethod']
-    requestTime = event['requestContext']['requestTime']
+    #requestTime = event['requestContext']['requestTime']
     now = datetime.now()
     iso_date = now.isoformat()
     body = event['body']
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
             "attr1": str(value),
             "requestTime": iso_date,
         }
-        
+
         response = table.put_item(
             Item=key,
         )
@@ -48,8 +48,19 @@ def lambda_handler(event, context):
             return json_response({"message": "Invalid Response..Try Again!"})
 
     elif method == 'GET':
-        response = table.scan(Limit=10)['Items']
-        print(response)
+        items = table.scan()['Items']
+
+        myList = []
+        for i in range(len(items)):
+            myList.append((items[i]['requestTime'], items[i]['attr1']))
+        
+        myList.sort(reverse=True)
+
+        if len(myList) > 10:
+            response = json.dumps(myList[:10], default=str)
+        else:
+            response = json.dumps(myList, default=str)
+
         if response:
             return json_response(response)
         else:
