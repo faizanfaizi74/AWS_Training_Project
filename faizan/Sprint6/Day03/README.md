@@ -19,7 +19,7 @@ The end goal of this sprint is to deliver an efficient design that can be used t
 
 ### Application Design
 
-![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6-Day02/Sprint6-Day02.drawio.png)
+![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day03/design-day-03.drawio.png)
 
 ### TECHNOLOGIES USED
 
