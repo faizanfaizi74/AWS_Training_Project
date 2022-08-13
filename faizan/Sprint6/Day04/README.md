@@ -14,26 +14,26 @@ Design and Develop: Deploy, maintain and rollback pipeline for an artifact deplo
 
 **A) What do you think if the latest deployment is failing?**
 
-The latest deployment can be failed due to multiple factors. Some of them are mentioned below:
-1. A change in Policies: If the policies in AWS account are changed and there are provided role that does not have sufficient permissions, then the deployment of latest version can be failed.
-2. The source repo permissions are changed and not authorized to the repository.
-3. The corrupt Cloudformation template can also casues the deploment to be failed
+> The latest deployment can be failed due to multiple factors. Some of them are mentioned below:
+> 1. A change in Policies: If the policies in AWS account are changed and there are provided role that does not have sufficient permissions, then the deployment of > latest version can be failed.
+> 2. The source repo permissions are changed and not authorized to the repository.
+> 3. The corrupt Cloudformation template can also casues the deploment to be failed
 
 **B) How will you rollback?**
 
-CodeDeploy is used to roll back deployments by redeploying a previously deployed revision of an application as a new deployment. These rolled-back deployments are technically new deployments, with new deployment IDs, rather than restored versions of a previous deployment.
-
-Deployments can be rolled back automatically or manually. To auto rollback on previous version, we can define an "Alias" that points to the current version of the application and a "Deployment Group" that uses Blue-Green Deployment configuration. Whenever we face any problem in deployment or when a monitoring threshold we specify is met, the application will rollback to its previous version using the Alias and Deployment Group.
+>CodeDeploy is used to roll back deployments by redeploying a previously deployed revision of an application as a new deployment. These rolled-back deployments are technically new deployments, with new deployment IDs, rather than restored versions of a previous deployment.
+>
+>Deployments can be rolled back automatically or manually. To auto rollback on previous version, we can define an "Alias" that points to the current version of the application and a "Deployment Group" that uses Blue-Green Deployment configuration. Whenever we face any problem in deployment or when a monitoring threshold we specify is met, the application will rollback to its previous version using the Alias and Deployment Group.
 
 **C) How do you reduce such failures so there is less need to rollback?**
 
-Rollback triggers/alarms enable us to monitor the state of the application during stack creation and updating, and to rollback that operation if the application breaches the threshold of any of the alarms we've specified and goes into IN ALARM state.
-To redice the need of rollback, we should completely understand the design problem and requirements of an application. The the current requirements and future modifications such as traffic, regions etc should be clearly specified in the stack resources and service architecture, so the application can perform well in unexpected situations and does not go to IN ALARM state frequenctly due to poor architecture.
+>Rollback triggers/alarms enable us to monitor the state of the application during stack creation and updating, and to rollback that operation if the application breaches the threshold of any of the alarms we've specified and goes into IN ALARM state.
+>To redice the need of rollback, we should completely understand the design problem and requirements of an application. The the current requirements and future modifications such as traffic, regions etc should be clearly specified in the stack resources and service architecture, so the application can perform well in unexpected situations and does not go to IN ALARM state frequenctly due to poor architecture.
 
 
 ### Application Design
 
-![ApplicationDesign]()
+![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day04/design-day04.png)
 
 ### TECHNOLOGIES USED
 
