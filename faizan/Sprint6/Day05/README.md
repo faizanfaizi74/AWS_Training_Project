@@ -9,7 +9,7 @@
 
 ### Design Problem:
 
-![DesignProblem][]
+![DesignProblem](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day05/design-problem.PNG)
 
 How would you automate deployment (e-g on AWS) for a system that has:
 A) Source code in a repo
@@ -39,7 +39,7 @@ Yes definatley, A pipeline (source, build, test, deploy stages) can be craeted u
 
 ### Application Design
 
-![ApplicationDesign]()
+![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day05/design-day05.png)
 
 ### TECHNOLOGIES USED
 
