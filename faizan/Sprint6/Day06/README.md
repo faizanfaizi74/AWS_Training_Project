@@ -22,7 +22,7 @@ Design & Develop - Design an end-to-end CI/CD delivery pipeline for a website on
 
 ### Application Design
 
-![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day05/design-day05.png)
+![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day06/design-day06.png)
 
 ### TECHNOLOGIES USED
 
