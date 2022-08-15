@@ -9,7 +9,7 @@
 
 ### Design Problem:
 
-![DesignProblem]()
+![DesignProblem](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day06/image.png)
 
 Design & Develop - Design an end-to-end CI/CD delivery pipeline for a website on AWS that has following components:
 
