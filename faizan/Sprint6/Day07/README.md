@@ -19,6 +19,11 @@
 
 ![ApplicationDesign](https://github.com/muhammadfaizan2022skipq/Pegasus_Python/blob/main/faizan/Sprint6/Day07/design-day07.png)
 
+### Design Explanation - Demo
+The design is explained in the following video. Feel free to share your thoughts!
+
+* [Demo_Video](demo_link)
+
 ### TECHNOLOGIES USED
 
 * [AWS S3](https://aws.amazon.com/s3/)
