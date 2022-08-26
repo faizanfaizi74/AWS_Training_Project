@@ -24,8 +24,6 @@
 * [AWS S3](https://aws.amazon.com/s3/)
 * [AWS Lambda](https://aws.amazon.com/lambda/)
 * [AWS API Gateway](https://aws.amazon.com/api-gateway/)
-* [AWS DynamoDB](https://aws.amazon.com/dynamodb/)
-* [AWS SES](https://aws.amazon.com/ses/)
 * [AWS IAM](https://aws.amazon.com/iam/)
 * [AWS GitHub](https://github.com/aws-samples)
 
