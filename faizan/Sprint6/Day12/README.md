@@ -24,10 +24,13 @@ Tourism is usually the pillar industry of many countries because it has many ben
 
 * [AWS S3](https://aws.amazon.com/s3/)
 * [AWS Lambda](https://aws.amazon.com/lambda/)
-* [AWS API Gateway](https://aws.amazon.com/api-gateway/)
-* [AWS DynamoDB](https://aws.amazon.com/dynamodb/)
-* [AWS SES](https://aws.amazon.com/ses/)
+* [AWS Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/)
+* [AWS RDS](https://aws.amazon.com/rds/)
+* [AWS EC2](https://aws.amazon.com/ec2/)
+* [AWS Location Service](https://aws.amazon.com/location/)
+* [AWS Cloud Search](https://aws.amazon.com/cloudsearch/)
 * [AWS IAM](https://aws.amazon.com/iam/)
+* [AWS Cognito](https://aws.amazon.com/cognito/)
 * [AWS GitHub](https://github.com/aws-samples)
 
 
