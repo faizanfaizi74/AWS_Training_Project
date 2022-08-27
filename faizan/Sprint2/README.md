@@ -1,7 +1,9 @@
 
-# Welcome to my Sprint2 Project!
+> SkipQ Pegasus Python: Sprint 2 Project
 
-This is a Sprint2 project for Web Health Monitoring and DynamoDB Management.
+# Web Health Monitoring and DynamoDB Management with Alarm Notifications!
+
+[![Linux](https://svgshare.com/i/Zhy.svg)](#) [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](#) [![Generic badge](https://img.shields.io/badge/version-3.8.10-blue)](#)
 
 ## About Sprint2
 
