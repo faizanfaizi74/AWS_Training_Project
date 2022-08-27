@@ -1,9 +1,8 @@
+> SkipQ Pegasus Python: Sprint 3 Project
 
-# Welcome to my Sprint3 Project!
+# Creating a Multi-Stage CI/CD Pipeline having Beta/Gamma and Prod stages using CDK!
 
-This is a Sprint3 project for a multi-satge pipeline deployment and configuration with atutomatic rollback for my Web Health Monitoring Application.
-
-## About Sprint3
+[![Linux](https://svgshare.com/i/Zhy.svg)](#) [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](#) [![Generic badge](https://img.shields.io/badge/version-3.8.10-blue)](#)
 
 ### Objective
 
