@@ -6,5 +6,5 @@ COPY ./mytests /app
 
 ENTRYPOINT ["pyresttest"]
 
-CMD ["https://6vev67kynl.execute-api.us-east-1.amazonaws.com", "api_test.yml"]
+CMD ["https://s50elrhgxl.execute-api.us-east-1.amazonaws.com", "api_test.yml"]
 
