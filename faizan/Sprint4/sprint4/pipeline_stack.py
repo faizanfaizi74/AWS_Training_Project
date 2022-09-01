@@ -57,6 +57,7 @@ class FaizanPipelineStack(Stack):
                         },
                         "pre_build": {
                             "commands": [
+                                "cd faizan/Sprint4/docker-image"
                                 "docker build -t faizan-api-test ."
                             ]
                         },
