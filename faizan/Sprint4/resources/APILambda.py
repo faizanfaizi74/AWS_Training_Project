@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     # # Get the method
     method = event['httpMethod']
     body = event['body']
-    
+
     #1. Get (Read) Item
     if method == 'GET':
         return get_url()

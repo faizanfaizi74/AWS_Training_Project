@@ -1,6 +1,7 @@
 from aws_cdk import (
     Stack,
     pipelines as pipeline_,
+    aws_codebuild as codebuild_,
     aws_codepipeline_actions as actions_,
 )
 import aws_cdk as cdk
@@ -18,18 +19,17 @@ class FaizanPipelineStack(Stack):
         source = pipeline_.CodePipelineSource.git_hub("muhammadfaizan2022skipq/Pegasus_Python", "main",
             authentication = cdk.SecretValue.secrets_manager("mytokenNew"),
             trigger = actions_.GitHubTrigger('POLL'))
-
-        # Output build Artifact
-        mypipeline = pipeline_.CodePipeline(self, "FaizanCodePipeline",
-            synth=pipeline_.ShellStep("Synth",
-                input=source,
+        
+        synth = pipeline_.ShellStep("Synth", input=source,
                 commands=[
                     'cd faizan/Sprint4/',
                     'pip install -r requirements.txt',
                     'npm install -g aws-cdk',
                     'cdk synth'],
                 primary_output_directory = 'faizan/Sprint4/cdk.out',)
-        )
+
+        # Output build Artifact
+        mypipeline = pipeline_.CodePipeline(self, "FaizanCodePipeline", synth=synth, docker_enabled_for_self_mutation=True)
 
         unit_test = pipeline_.ShellStep("Unit Testing",
             commands=[
@@ -39,12 +39,40 @@ class FaizanPipelineStack(Stack):
                 'pytest'],
         )
 
-        # 'MyApplication' is defined below. Call `addStage` as many times as
-        # necessary with any account and region (may be different from the
-        # pipeline's).
+        pyresttest = pipeline_.CodeBuildStep("FaizanPyresttest",
+            commands=[],
+            build_environment= codebuild_.BuildEnvironment(
+                build_image= codebuild_.LinuxBuildImage.from_asset(self, "Image", directory="./docker-image").from_docker_registry(name="docker:dind"),
+                privileged=True
+            ),
+            partial_build_spec=codebuild_.BuildSpec.from_object(
+                {
+                    "version": 0.2,
+                    "phases": {
+                        "install": {
+                            "commands": [
+                                "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &",
+                                "timeout 15 sh -c \"until docker info; do echo .; sleep 1; done\""
+                            ]
+                        },
+                        "pre_build": {
+                            "commands": [
+                                "docker build -t faizan-api-test ."
+                            ]
+                        },
+                        "build": {
+                            "commands": [
+                                "docker images",
+                                "docker run faizan-api-test"
+                            ]
+                        }
+                    }
+                }
+            ),
+        )
 
-        alpha = FaizanOutputStage(self, "FaizanUnitStage")
+        alpha = FaizanOutputStage(self, "FaizanUnitPyrestStage")
         prod = FaizanOutputStage(self, "FaizanProdStage")
 
-        mypipeline.add_stage(stage=alpha, pre=[unit_test])
+        mypipeline.add_stage(stage=alpha, pre=[unit_test], post=[pyresttest])
         mypipeline.add_stage(stage=prod, pre=[pipeline_.ManualApprovalStep("PromoteToProd")])

@@ -4,9 +4,10 @@ import os
 import aws_cdk as cdk
 
 from sprint4.pipeline_stack import FaizanPipelineStack
+# from sprint4.sprint4_stack import FaizanOutputStage
 
 app = cdk.App()
-FaizanPipelineStack(app, "FaizanPipelineSprint4Stack",
+FaizanPipelineStack(app, "FaizanSprint4Stack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
