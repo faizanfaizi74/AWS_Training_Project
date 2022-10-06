@@ -41,7 +41,7 @@ class Sprint2Stack(Stack):
 
         # scheduling the lambda function
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_events/Schedule.html
-        schedule = events_.Schedule.cron()
+        schedule = events_.Schedule.cron() # for every minute
         target = targets_.LambdaFunction(handler=WHLambda)
         
         rule = events_.Rule(self, "LambdaEventRule",

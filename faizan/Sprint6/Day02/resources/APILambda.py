@@ -15,25 +15,19 @@ table = dynamodb.Table(tableName)
 
 def lambda_handler(event, context):
     # body = [{"event1":{"attr1": 897}}]
-    
-    print("Event: ", event)
     # # Get the method
     
     method = event['httpMethod']
+    body = event['body']
     #requestTime = event['requestContext']['requestTime']
     now = datetime.now()
     iso_date = now.isoformat()
-    body = event['body']
-
-    print("Body: ", body)
-    print("RequestTime: ", iso_date)
 
     if method == 'POST':
         # Get the val
         json_obj = json.loads(body)
         value = int(json_obj[0]['event1']['attr1'])
         
-        print({"ResponseValue": value})
         key = {
             "attr1": str(value),
             "requestTime": iso_date,
@@ -52,7 +46,7 @@ def lambda_handler(event, context):
 
         myList = []
         for i in range(len(items)):
-            myList.append((items[i]['requestTime'], items[i]['attr1']))
+            myList.append((items[i]['attr1'], items[i]['requestTime']))
         
         myList.sort(reverse=True)
 

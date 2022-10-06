@@ -15,8 +15,8 @@ def lambda_handler(event, context):
         message = json.loads(record['Sns']['Message'])
 
         item = {
-            "AlarmName": {'S': message["AlarmName"]},
-            "AlarmTime": {'S': message["AlarmConfigurationUpdatedTimestamp"]},
+            "AlarmName": {'S': message["AlarmName"]}, # Partition Key
+            "AlarmTime": {'S': message["AlarmConfigurationUpdatedTimestamp"]}, # Sort Key
             "Reason": {'S': message["NewStateReason"]},
             "Region": {'S': message["Region"]},
         }
